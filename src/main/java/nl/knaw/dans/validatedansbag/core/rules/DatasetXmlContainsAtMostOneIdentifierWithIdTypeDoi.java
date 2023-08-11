@@ -21,7 +21,6 @@ import nl.knaw.dans.validatedansbag.core.engine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Slf4j

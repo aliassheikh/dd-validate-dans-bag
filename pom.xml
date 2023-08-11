@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>0.20.0</version>
+        <version>0.21.0-SNAPSHOT</version>
         <relativePath />
     </parent>
 
@@ -36,8 +36,6 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatedansbag.DdValidateDansBagApplication</main-class>
-        <dd-validate-dans-bag-api.version>0.2.0</dd-validate-dans-bag-api.version>
-        <dd-vault-catalog-api.version>0.1.0</dd-vault-catalog-api.version>
     </properties>
 
     <scm>
@@ -183,7 +181,7 @@
                             <configOptions combine.children="override">
                                 <apiPackage>nl.knaw.dans.validatedansbag.resources</apiPackage>
                                 <modelPackage>nl.knaw.dans.validatedansbag.api</modelPackage>
-                                <invokerPackage>nl.knaw.dans.validatedansbag.api</invokerPackage>
+                                <invokerPackage>nl.knaw.dans.validatedansbag.resources</invokerPackage>
                             </configOptions>
                         </configuration>
                     </execution>
@@ -195,10 +193,10 @@
                         <configuration combine.children="override">
                             <inputSpec>${project.build.directory}/openapi/dd-vault-catalog-api.yml</inputSpec>
                             <generatorName>java</generatorName>
+                            <apiPackage>nl.knaw.dans.vaultcatalog.client.resources</apiPackage>
+                            <modelPackage>nl.knaw.dans.vaultcatalog.client.api</modelPackage>
+                            <invokerPackage>nl.knaw.dans.vaultcatalog.client.invoker</invokerPackage>
                             <configOptions combine.children="override">
-                                <apiPackage>nl.knaw.dans.validatedansbag.client.vaultcatalog</apiPackage>
-                                <modelPackage>nl.knaw.dans.validatedansbag.client.vaultcatalog.api</modelPackage>
-                                <invokerPackage>nl.knaw.dans.validatedansbag.client.vaultcatalog</invokerPackage>
                                 <!-- the client does not appear to need annotations so we can remove them -->
                                 <annotationLibrary>none</annotationLibrary>
                                 <!-- this generates jersey2 client -->

@@ -13,4 +13,5 @@
 /.idea/
 /docs/swagger-ui/
 /docs/api.yml
+/.venv-mkdocs/
 

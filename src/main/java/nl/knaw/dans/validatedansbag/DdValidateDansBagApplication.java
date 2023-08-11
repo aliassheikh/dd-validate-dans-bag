@@ -20,9 +20,7 @@ import io.dropwizard.Application;
 import io.dropwizard.forms.MultiPartBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
-import nl.knaw.dans.validatedansbag.client.*;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClient;
-import nl.knaw.dans.validatedansbag.client.vaultcatalog.OcflObjectVersionApi;
 import nl.knaw.dans.validatedansbag.core.engine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.core.rules.RuleSets;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReaderImpl;
@@ -44,7 +42,7 @@ import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateOkYamlMessageBodyWriter;
 import nl.knaw.dans.validatedansbag.resources.ValidateResource;
-import org.glassfish.jersey.client.ClientConfig;
+import nl.knaw.dans.vaultcatalog.client.resources.OcflObjectVersionApi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -4,7 +4,7 @@
         xmlns:ddm="http://schemas.dans.knaw.nl/dataset/ddm-v2/"
         xmlns:dcterms="http://purl.org/dc/terms/"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:id-type="http://easy.dans.knaw.nl/schemas/vocab/identifier-type/">
+>
     <ddm:profile>
         <dc:title>A bag containing multiple audiences</dc:title>
         <dcterms:description>
