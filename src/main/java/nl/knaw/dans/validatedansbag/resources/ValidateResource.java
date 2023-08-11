@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 package nl.knaw.dans.validatedansbag.resources;
+import nl.knaw.dans.validatedansbag.api.*;
 
-import nl.knaw.dans.validatedansbag.api.ValidateCommand;
-import nl.knaw.dans.validatedansbag.api.ValidateOk;
-import nl.knaw.dans.validatedansbag.api.ValidateOkRuleViolations;
 import nl.knaw.dans.validatedansbag.core.BagNotFoundException;
 import nl.knaw.dans.validatedansbag.core.engine.DepositType;
 import nl.knaw.dans.validatedansbag.core.engine.RuleValidationResult;
@@ -57,8 +55,8 @@ public class ValidateResource {
     @POST
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public ValidateOk validateFormData(
-        @Valid @NotNull @FormDataParam(value = "command") ValidateCommand command,
+    public ValidateOkDto validateFormData(
+        @Valid @NotNull @FormDataParam(value = "command") ValidateCommandDto command,
         @FormDataParam(value = "zip") InputStream zipInputStream
     ) {
         var location = command.getBagLocation();
@@ -67,7 +65,7 @@ public class ValidateResource {
         log.info("Received request to validate bag: {}", command);
 
         try {
-            ValidateOk validateResult;
+            ValidateOkDto validateResult;
 
             if (location == null) {
                 validateResult = validateInputStream(zipInputStream, depositType);
@@ -95,7 +93,7 @@ public class ValidateResource {
     @POST
     @Consumes({ "application/zip" })
     @Produces({ MediaType.APPLICATION_JSON, MediaType.TEXT_PLAIN })
-    public ValidateOk validateZip(InputStream inputStream) {
+    public ValidateOkDto validateZip(InputStream inputStream) {
         try {
             log.info("Received request to validate zip file");
             return validateInputStream(inputStream, DepositType.DEPOSIT);
@@ -110,7 +108,7 @@ public class ValidateResource {
         }
     }
 
-    ValidateOk validateInputStream(InputStream inputStream, DepositType depositType) throws Exception {
+    ValidateOkDto validateInputStream(InputStream inputStream, DepositType depositType) throws Exception {
         var tempPath = fileService.extractZipFile(inputStream);
 
         try {
@@ -130,11 +128,11 @@ public class ValidateResource {
 
     }
 
-    ValidateOk validatePath(java.nio.file.Path bagDir, DepositType depositType) throws Exception {
+    ValidateOkDto validatePath(java.nio.file.Path bagDir, DepositType depositType) throws Exception {
         var results = ruleEngineService.validateBag(bagDir, depositType);
         var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
 
-        var result = new ValidateOk();
+        var result = new ValidateOkDto();
         result.setBagLocation(null);
         result.setIsCompliant(isValid);
         result.setName(bagDir.getFileName().toString());
@@ -143,7 +141,7 @@ public class ValidateResource {
         result.setRuleViolations(results.stream()
             .filter(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE))
             .map(rule -> {
-                var ret = new ValidateOkRuleViolations();
+                var ret = new ValidateOkRuleViolationsInnerDto();
                 ret.setRule(rule.getNumber());
 
                 var message = new StringBuilder();
@@ -162,17 +160,17 @@ public class ValidateResource {
         return result;
     }
 
-    DepositType toDepositType(ValidateCommand.PackageTypeEnum value) {
-        if (ValidateCommand.PackageTypeEnum.MIGRATION.equals(value)) {
+    DepositType toDepositType(ValidateCommandDto.PackageTypeEnum value) {
+        if (ValidateCommandDto.PackageTypeEnum.MIGRATION.equals(value)) {
             return DepositType.MIGRATION;
         }
         return DepositType.DEPOSIT;
     }
 
-    ValidateOk.InformationPackageTypeEnum toInfoPackageType(DepositType value) {
+    ValidateOkDto.InformationPackageTypeEnum toInfoPackageType(DepositType value) {
         if (DepositType.MIGRATION.equals(value)) {
-            return ValidateOk.InformationPackageTypeEnum.MIGRATION;
+            return ValidateOkDto.InformationPackageTypeEnum.MIGRATION;
         }
-        return ValidateOk.InformationPackageTypeEnum.DEPOSIT;
+        return ValidateOkDto.InformationPackageTypeEnum.DEPOSIT;
     }
 }
