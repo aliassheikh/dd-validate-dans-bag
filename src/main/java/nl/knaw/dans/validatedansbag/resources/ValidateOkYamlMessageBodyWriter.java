@@ -17,7 +17,7 @@ package nl.knaw.dans.validatedansbag.resources;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import nl.knaw.dans.validatedansbag.api.ValidateOk;
+import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
 
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
@@ -33,18 +33,18 @@ import java.nio.charset.StandardCharsets;
 
 @Provider
 @Produces(MediaType.TEXT_PLAIN)
-public class ValidateOkYamlMessageBodyWriter implements MessageBodyWriter<ValidateOk> {
+public class ValidateOkYamlMessageBodyWriter implements MessageBodyWriter<ValidateOkDto> {
     private final ObjectMapper objectMapper = new ObjectMapper(new YAMLFactory());
 
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type == ValidateOk.class;
+        return type == ValidateOkDto.class;
     }
 
     @Override
-    public void writeTo(ValidateOk validateOkResult, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
+    public void writeTo(ValidateOkDto ValidateOkDtoResult, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders,
         OutputStream entityStream) throws IOException, WebApplicationException {
-        var result = objectMapper.writeValueAsString(validateOkResult);
+        var result = objectMapper.writeValueAsString(ValidateOkDtoResult);
         entityStream.write(result.getBytes(StandardCharsets.UTF_8));
     }
 }

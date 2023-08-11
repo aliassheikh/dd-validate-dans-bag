@@ -18,9 +18,7 @@ package nl.knaw.dans.validatedansbag.resources;
 import io.dropwizard.auth.AuthValueFactoryProvider;
 import io.dropwizard.testing.junit5.DropwizardExtensionsSupport;
 import io.dropwizard.testing.junit5.ResourceExtension;
-import nl.knaw.dans.validatedansbag.api.ValidateCommand;
-import nl.knaw.dans.validatedansbag.api.ValidateOk;
-import nl.knaw.dans.validatedansbag.api.ValidateOk.InformationPackageTypeEnum;
+import nl.knaw.dans.validatedansbag.api.*;
 import nl.knaw.dans.validatedansbag.core.BagNotFoundException;
 import nl.knaw.dans.validatedansbag.core.auth.SwordUser;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
@@ -61,9 +59,9 @@ class ValidateResourceTest {
 
     @Test
     void validateFormData_should_have_no_interactions_with_fileService_and_match_properties() {
-        var data = new ValidateCommand();
+        var data = new ValidateCommandDto();
         data.setBagLocation("it/is/here");
-        data.setPackageType(ValidateCommand.PackageTypeEnum.DEPOSIT);
+        data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
         var multipart = new FormDataMultiPart()
             .field("command", data, MediaType.APPLICATION_JSON_TYPE);
@@ -71,20 +69,20 @@ class ValidateResourceTest {
         var response = EXT.target("/validate")
             .register(MultiPartFeature.class)
             .request()
-            .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOk.class);
+            .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
 
         Mockito.verifyNoInteractions(fileService);
 
         assertEquals("it/is/here", response.getBagLocation());
         assertEquals("here", response.getName());
-        assertEquals(InformationPackageTypeEnum.DEPOSIT, response.getInformationPackageType());
+        assertEquals(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT, response.getInformationPackageType());
     }
 
     @Test
     void validateFormData_should_create_zipFile_on_disk() throws Exception {
-        var data = new ValidateCommand();
+        var data = new ValidateCommandDto();
         data.setBagLocation(null);
-        data.setPackageType(ValidateCommand.PackageTypeEnum.DEPOSIT);
+        data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
         var multipart = new FormDataMultiPart()
             .field("command", data, MediaType.APPLICATION_JSON_TYPE)
@@ -101,7 +99,7 @@ class ValidateResourceTest {
         var response = EXT.target("/validate")
             .register(MultiPartFeature.class)
             .request()
-            .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOk.class);
+            .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
 
         Mockito.verify(fileService).extractZipFile(Mockito.any(InputStream.class));
 
@@ -110,9 +108,9 @@ class ValidateResourceTest {
 
     @Test
     void validateFormData_should_return_400_when_file_does_not_exist() throws Exception {
-        var data = new ValidateCommand();
+        var data = new ValidateCommandDto();
         data.setBagLocation("some/path");
-        data.setPackageType(ValidateCommand.PackageTypeEnum.DEPOSIT);
+        data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
         var multipart = new FormDataMultiPart()
             .field("command", data, MediaType.APPLICATION_JSON_TYPE);
@@ -144,7 +142,7 @@ class ValidateResourceTest {
 
         var response = EXT.target("/validate")
             .request()
-            .post(zip, ValidateOk.class);
+            .post(zip, ValidateOkDto.class);
 
         Mockito.verify(fileService).extractZipFile(Mockito.any(InputStream.class));
 
