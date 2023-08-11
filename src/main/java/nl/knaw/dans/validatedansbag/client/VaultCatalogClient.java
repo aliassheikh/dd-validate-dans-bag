@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.validatedansbag.client;
 
+import nl.knaw.dans.validatedansbag.client.vaultcatalog.OcflObjectVersionApi;
 import nl.knaw.dans.validatedansbag.core.service.VaultService;
 
 import java.io.IOException;
