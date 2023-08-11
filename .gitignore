@@ -11,4 +11,6 @@
 /buildNumber.properties
 /*.iml
 /.idea/
+/docs/swagger-ui/
+/docs/api.yml
 
