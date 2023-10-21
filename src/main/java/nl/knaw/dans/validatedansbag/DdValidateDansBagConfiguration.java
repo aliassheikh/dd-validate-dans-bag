@@ -16,7 +16,7 @@
 
 package nl.knaw.dans.validatedansbag;
 
-import io.dropwizard.Configuration;
+import io.dropwizard.core.Configuration;
 import lombok.Getter;
 import lombok.Setter;
 import nl.knaw.dans.lib.util.DataverseClientFactory;

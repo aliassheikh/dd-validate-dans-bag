@@ -22,7 +22,7 @@
     <parent>
         <groupId>nl.knaw.dans</groupId>
         <artifactId>dd-parent</artifactId>
-        <version>0.21.0</version>
+        <version>0.23.0</version>
         <relativePath />
     </parent>
 
@@ -47,7 +47,6 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
 	    <artifactId>dans-java-utils</artifactId>
-	    <version>0.6.0</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>
@@ -89,7 +88,6 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-dataverse-client-lib</artifactId>
-            <version>0.22.0</version>
         </dependency>
 
         <dependency>
@@ -102,6 +100,15 @@
             <artifactId>jersey-media-json-jackson</artifactId>
         </dependency>
 
+        <!-- Dates -->
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>io.dropwizard</groupId>
