@@ -50,23 +50,12 @@ public class LicenseValidatorImpl implements LicenseValidator {
 
     @Override
     public boolean isValidLicense(String license) throws IOException, DataverseException {
-        // strip trailing slashes so urls are more consistent
-        // it might be worth investigating if this should be more extensive
-        // for example, also dropping the www. prefix
         var licenses = dataverseService.getLicenses().stream()
             .filter(License::isActive)
             .map(License::getUri)
             .filter(Objects::nonNull)
-            .map(this::normalizeLicense)
             .collect(Collectors.toSet());
 
-        var normalizedLicense = normalizeLicense(license);
-        log.trace("Normalized license from {} to {}", license, normalizedLicense);
-
-        return licenses.contains(normalizedLicense);
-    }
-
-    String normalizeLicense(String license) {
-        return license.replaceAll("/+$", "");
+        return licenses.contains(license);
     }
 }

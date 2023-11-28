@@ -50,7 +50,7 @@ class LicenseValidatorImplTest {
 
     @Test
     void isValidLicense_should_return_true_for_valid_uri() throws Exception {
-        var license = "http://dans.nl/";
+        var license = "http://dans.nl";
         var dvLicense = new License();
         dvLicense.setActive(true);
         dvLicense.setUri("http://dans.nl");
@@ -63,7 +63,7 @@ class LicenseValidatorImplTest {
 
     @Test
     void isValidLicense_should_return_false_for_invalid_uri() throws Exception {
-        var license = "http://dans.nl/";
+        var license = "http://dans.nl";
         var dvLicense = new License();
         dvLicense.setActive(true);
         dvLicense.setUri("http://something.else.com");
