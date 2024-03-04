@@ -18,23 +18,23 @@ package nl.knaw.dans.validatedansbag.core.rules;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.validatedansbag.core.engine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
-import nl.knaw.dans.validatedansbag.core.service.VaultService;
+import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 
 import java.nio.file.Path;
 
 @Slf4j
 public class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog implements BagValidatorRule {
-    private final VaultService vaultService;
+    private final VaultCatalogClient vaultCatalogClient;
     private final BagItMetadataReader bagItMetadataReader;
 
-    public BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(VaultService vaultService, BagItMetadataReader bagItMetadataReader) {
-        this.vaultService = vaultService;
+    public BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(VaultCatalogClient vaultCatalogClient, BagItMetadataReader bagItMetadataReader) {
+        this.vaultCatalogClient = vaultCatalogClient;
         this.bagItMetadataReader = bagItMetadataReader;
     }
 
     @Override
     public RuleResult validate(Path path) throws Exception {
-        if (this.vaultService == null) {
+        if (this.vaultCatalogClient == null) {
             throw new IllegalStateException("Vault catalog rule called, but vault service is not configured");
         }
 
@@ -43,7 +43,7 @@ public class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog implements 
         log.trace("Using Is-Version-Of value '{}' to find a matching dataset", isVersionOf);
 
         if (isVersionOf != null) {
-            var dataset = vaultService.findDatasetBySwordToken(isVersionOf);
+            var dataset = vaultCatalogClient.findDatasetBySwordToken(isVersionOf);
 
             if (dataset.isEmpty()) {
                 log.debug("Dataset with sword token '{}' not found", isVersionOf);

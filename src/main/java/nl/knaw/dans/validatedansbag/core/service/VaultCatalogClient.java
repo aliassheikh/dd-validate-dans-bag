@@ -15,17 +15,11 @@
  */
 package nl.knaw.dans.validatedansbag.core.service;
 
-import lombok.Value;
+import nl.knaw.dans.vaultcatalog.client.api.DatasetDto;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public interface VaultService {
-
-    Optional<VaultEntry> findDatasetBySwordToken(String swordToken) throws IOException;
-
-    @Value
-    class VaultEntry {
-        String swordToken;
-    }
+public interface VaultCatalogClient {
+    Optional<DatasetDto> findDatasetBySwordToken(String swordToken) throws IOException;
 }

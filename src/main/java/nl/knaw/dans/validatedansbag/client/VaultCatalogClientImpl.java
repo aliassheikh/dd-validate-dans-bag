@@ -16,28 +16,21 @@
 package nl.knaw.dans.validatedansbag.client;
 
 
-import nl.knaw.dans.validatedansbag.core.service.VaultService;
-import nl.knaw.dans.vaultcatalog.client.resources.OcflObjectVersionApi;
+import lombok.AllArgsConstructor;
+import nl.knaw.dans.vaultcatalog.client.api.DatasetDto;
+import nl.knaw.dans.vaultcatalog.client.resources.DefaultApi;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class VaultCatalogClient implements VaultService {
-    private final OcflObjectVersionApi ocflObjectVersionApi;
-
-    public VaultCatalogClient(OcflObjectVersionApi ocflObjectVersionApi) {
-        this.ocflObjectVersionApi = ocflObjectVersionApi;
-    }
+@AllArgsConstructor
+public class VaultCatalogClientImpl implements nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient {
+    private final DefaultApi catalogApi;
 
     @Override
-    public Optional<VaultEntry> findDatasetBySwordToken(String swordToken) throws IOException {
+    public Optional<DatasetDto> findDatasetBySwordToken(String swordToken) throws IOException {
         try {
-            var vaultEntry = ocflObjectVersionApi.getOcflObjectsBySwordToken(swordToken);
-
-            return vaultEntry.stream()
-                .map(item -> new VaultEntry(item.getSwordToken()))
-                .findFirst();
-
+            return Optional.of(catalogApi.getDatasetBySwordToken(swordToken));
         }
         catch (Exception e) {
             throw new IOException("Unable to fetch vault entry", e);

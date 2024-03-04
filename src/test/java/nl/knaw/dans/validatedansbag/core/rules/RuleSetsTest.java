@@ -21,7 +21,7 @@ import nl.knaw.dans.validatedansbag.core.service.DataverseService;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
 import nl.knaw.dans.validatedansbag.core.service.FilesXmlService;
 import nl.knaw.dans.validatedansbag.core.service.OriginalFilepathsService;
-import nl.knaw.dans.validatedansbag.core.service.VaultService;
+import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
 import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidator;
 import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidator;
@@ -55,7 +55,7 @@ public class RuleSetsTest {
 
     private static final OrganizationIdentifierPrefixValidator organizationIdentifierPrefixValidator = Mockito.mock(OrganizationIdentifierPrefixValidator.class);
 
-    private static final VaultService vaultService = Mockito.mock(VaultService.class);
+    private static final VaultCatalogClient VAULT_CATALOG_CLIENT = Mockito.mock(VaultCatalogClient.class);
 
 
     /*
@@ -68,7 +68,7 @@ public class RuleSetsTest {
         var ruleSets = new RuleSets(
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
                 bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
-                vaultService);
+            VAULT_CATALOG_CLIENT);
         new RuleEngineImpl().validateRuleConfiguration(ruleSets.getDataStationSet());
         assertTrue(true); // if we get here, the rule set is consistent
     }
@@ -78,7 +78,7 @@ public class RuleSetsTest {
         var ruleSets = new RuleSets(
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
                 bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
-                vaultService);
+            VAULT_CATALOG_CLIENT);
         new RuleEngineImpl().validateRuleConfiguration(ruleSets.getVaasSet());
         assertTrue(true); // if we get here, the rule set is consistent
     }

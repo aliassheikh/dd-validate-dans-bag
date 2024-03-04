@@ -17,7 +17,8 @@ package nl.knaw.dans.validatedansbag.core.rules;
 
 import nl.knaw.dans.validatedansbag.core.engine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
-import nl.knaw.dans.validatedansbag.core.service.VaultService;
+import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
+import nl.knaw.dans.vaultcatalog.client.api.DatasetDto;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
@@ -30,14 +31,14 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalogTest {
 
     @Test
-    void validate_should_return_SUCCESS_when_VaultService_yields_items() throws Exception {
-        var vaultService = Mockito.mock(VaultService.class);
+    void validate_should_return_SUCCESS_when_VaultCatalog_yields_items() throws Exception {
+        var vaultService = Mockito.mock(VaultCatalogClient.class);
         var metadataReader = Mockito.mock(BagItMetadataReader.class);
 
         Mockito.doReturn("urn:uuid:is-version-of-id")
             .when(metadataReader).getSingleField(Mockito.any(), Mockito.eq("Is-Version-Of"));
 
-        Mockito.doReturn(Optional.of(new VaultService.VaultEntry("urn:uuid:is-version-of-id")))
+        Mockito.doReturn(Optional.of(new DatasetDto().swordToken("urn:uuid:is-version-of-id")))
             .when(vaultService).findDatasetBySwordToken(Mockito.eq("urn:uuid:is-version-of-id"));
 
         var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultService, metadataReader);
@@ -48,33 +49,33 @@ class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalogTest {
 
     @Test
     void validate_should_return_SKIP_DEPENDENCIES_when_swordToken_is_not_there() throws Exception {
-        var vaultService = Mockito.mock(VaultService.class);
+        var vaultCatalog = Mockito.mock(VaultCatalogClient.class);
         var metadataReader = Mockito.mock(BagItMetadataReader.class);
-        var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultService, metadataReader);
+        var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultCatalog, metadataReader);
         var result = rule.validate(Path.of("bagdir"));
 
         assertEquals(RuleResult.Status.SKIP_DEPENDENCIES, result.getStatus());
     }
 
     @Test
-    void validate_should_return_ERROR_when_VaultService_yields_nothing() throws Exception {
-        var vaultService = Mockito.mock(VaultService.class);
+    void validate_should_return_ERROR_when_VaultCatalog_yields_nothing() throws Exception {
+        var vaultCatalog = Mockito.mock(VaultCatalogClient.class);
         var metadataReader = Mockito.mock(BagItMetadataReader.class);
 
         Mockito.doReturn(Optional.empty())
-            .when(vaultService).findDatasetBySwordToken(Mockito.eq("urn:uuid:is-version-of-id"));
+            .when(vaultCatalog).findDatasetBySwordToken(Mockito.eq("urn:uuid:is-version-of-id"));
 
         Mockito.doReturn("urn:uuid:is-version-of-id")
             .when(metadataReader).getSingleField(Mockito.any(), Mockito.eq("Is-Version-Of"));
 
-        var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultService, metadataReader);
+        var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultCatalog, metadataReader);
         var result = rule.validate(Path.of("bagdir"));
 
         assertEquals(RuleResult.Status.ERROR, result.getStatus());
     }
 
     @Test
-    void validate_should_throw_exception_if_called_without_VaultService() throws Exception {
+    void validate_should_throw_exception_if_called_without_VaultCatalog() throws Exception {
         var metadataReader = Mockito.mock(BagItMetadataReader.class);
         var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(null, metadataReader);
 

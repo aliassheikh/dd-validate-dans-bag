@@ -36,6 +36,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatedansbag.DdValidateDansBagApplication</main-class>
+        <dd-vault-catalog-api.version>0.3.0-SNAPSHOT</dd-vault-catalog-api.version>
     </properties>
 
     <scm>
@@ -47,6 +48,7 @@
         <dependency>
             <groupId>nl.knaw.dans</groupId>
             <artifactId>dans-java-utils</artifactId>
+            <version>0.9.1-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>io.dropwizard</groupId>

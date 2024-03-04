@@ -22,7 +22,7 @@ import nl.knaw.dans.validatedansbag.core.service.DataverseService;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
 import nl.knaw.dans.validatedansbag.core.service.FilesXmlService;
 import nl.knaw.dans.validatedansbag.core.service.OriginalFilepathsService;
-import nl.knaw.dans.validatedansbag.core.service.VaultService;
+import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
 import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidator;
 import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidator;
@@ -59,7 +59,7 @@ public class RuleSets {
 
     private final OrganizationIdentifierPrefixValidator organizationIdentifierPrefixValidator;
 
-    private final VaultService vaultService;
+    private final VaultCatalogClient vaultCatalogClient;
 
     public RuleSets(DataverseService dataverseService,
         FileService fileService,
@@ -71,7 +71,7 @@ public class RuleSets {
         LicenseValidator licenseValidator,
         IdentifierValidator identifierValidator,
         PolygonListValidator polygonListValidator,
-        OrganizationIdentifierPrefixValidator organizationIdentifierPrefixValidator, VaultService vaultService) {
+        OrganizationIdentifierPrefixValidator organizationIdentifierPrefixValidator, VaultCatalogClient vaultCatalogClient) {
         this.dataverseService = dataverseService;
         this.fileService = fileService;
         this.filesXmlService = filesXmlService;
@@ -83,7 +83,7 @@ public class RuleSets {
         this.identifierValidator = identifierValidator;
         this.polygonListValidator = polygonListValidator;
         this.organizationIdentifierPrefixValidator = organizationIdentifierPrefixValidator;
-        this.vaultService = vaultService;
+        this.vaultCatalogClient = vaultCatalogClient;
     }
 
     public NumberedRule[] getDataStationSet() {
@@ -199,7 +199,7 @@ public class RuleSets {
         // 5 Vault as a Service context requirements
         return List.of(
             // TODO: 5.1
-            new NumberedRule("5.1", new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultService, bagItMetadataReader), List.of("3.1.1")),
+            new NumberedRule("5.1", new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultCatalogClient, bagItMetadataReader), List.of("3.1.1")),
             new NumberedRule("5.2(a)", new DatasetXmlContainsAtMostOneIdentifierWithIdTypeDoi(xmlReader), List.of("3.1.1")),
             new NumberedRule("5.2(b)", new DatasetXmlDoisAreValid(xmlReader), List.of("5.2(a)"))
         );
