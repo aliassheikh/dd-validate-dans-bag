@@ -31,6 +31,11 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipInputStream;
 
 public class FileServiceImpl implements FileService {
+    private final Path baseFolder;
+
+    public FileServiceImpl(Path baseFolder) {
+        this.baseFolder = baseFolder;
+    }
 
     @Override
     public boolean isDirectory(Path path) {
@@ -44,6 +49,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<Path> getAllFiles(Path path) throws IOException {
+        checkBaseFolderSecurity(path);
         try (var stream = Files.walk(path)) {
             return stream.filter(Files::isRegularFile).collect(Collectors.toList());
         }
@@ -51,6 +57,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public List<Path> getAllFilesAndDirectories(Path path) throws IOException {
+        checkBaseFolderSecurity(path);
         try (var stream = Files.walk(path)) {
             return stream.collect(Collectors.toList());
         }
@@ -58,6 +65,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public byte[] readFileContents(Path path) throws IOException {
+        checkBaseFolderSecurity(path);
         return Files.readAllBytes(path);
     }
 
@@ -73,13 +81,14 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public CharBuffer readFileContents(Path path, Charset charset) throws IOException {
+        checkBaseFolderSecurity(path);
         var contents = readFileContents(path);
         return charset.newDecoder().decode(ByteBuffer.wrap(contents));
     }
 
     @Override
     public Path extractZipFile(InputStream inputStream) throws IOException {
-        var tempPath = Files.createTempDirectory("bag-");
+        var tempPath = Files.createTempDirectory(this.baseFolder, "bag-");
 
         try (var input = new ZipInputStream(inputStream)) {
             var entry = input.getNextEntry();
@@ -108,8 +117,17 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Optional<Path> getFirstDirectory(Path path) throws IOException {
+        checkBaseFolderSecurity(path);
         try (var s = Files.walk(path)) {
             return s.filter(this::isDirectory).skip(1).findFirst();
+        }
+    }
+
+    @Override
+    public void checkBaseFolderSecurity(Path path) throws RuntimeException {
+        Path toCheckPath = path.normalize().toAbsolutePath();
+        if (!toCheckPath.startsWith(this.baseFolder)) {
+            throw new IllegalArgumentException(String.format("InsecurePath %s", toCheckPath));
         }
     }
 

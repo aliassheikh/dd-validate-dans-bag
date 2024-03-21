@@ -44,12 +44,8 @@ import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateOkYamlMessageBodyWriter;
 import nl.knaw.dans.validatedansbag.resources.ValidateResource;
 import nl.knaw.dans.vaultcatalog.client.resources.DefaultApi;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DdValidateDansBagApplication extends Application<DdValidateDansBagConfiguration> {
-
-    private static final Logger log = LoggerFactory.getLogger(DdValidateDansBagApplication.class);
 
     public static void main(final String[] args) throws Exception {
         new DdValidateDansBagApplication().run(args);
@@ -76,7 +72,7 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         }
 
         var vaultService = getVaultService(configuration);
-        var fileService = new FileServiceImpl();
+        var fileService = new FileServiceImpl(configuration.getValidation().getBaseFolder());
         var bagItMetadataReader = new BagItMetadataReaderImpl();
         var xmlReader = new XmlReaderImpl();
         var polygonListValidator = new PolygonListValidatorImpl();
@@ -90,21 +86,21 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
 
         var ruleEngine = new RuleEngineImpl();
         var ruleSets = new RuleSets(dataverseService,
-            fileService,
-            filesXmlService,
-            originalFilepathsService,
-            xmlReader,
-            bagItMetadataReader,
-            xmlSchemaValidator,
-            licenseValidator,
-            identifierValidator,
-            polygonListValidator,
-            organizationIdentifierPrefixValidator,
-            vaultService
+                fileService,
+                filesXmlService,
+                originalFilepathsService,
+                xmlReader,
+                bagItMetadataReader,
+                xmlSchemaValidator,
+                licenseValidator,
+                identifierValidator,
+                polygonListValidator,
+                organizationIdentifierPrefixValidator,
+                vaultService
         );
 
         var ruleEngineService = new RuleEngineServiceImpl(ruleEngine, fileService,
-            configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
+                configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
 
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new ValidateResource(ruleEngineService, fileService));
