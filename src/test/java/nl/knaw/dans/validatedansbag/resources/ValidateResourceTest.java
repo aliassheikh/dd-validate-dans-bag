@@ -44,6 +44,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class ValidateResourceTest {
     private final RuleEngineService ruleEngineService = Mockito.mock(RuleEngineService.class);
     private final FileService fileService = Mockito.mock(FileService.class);
+
     public final ResourceExtension EXT = ResourceExtension.builder()
         .addProvider(MultiPartFeature.class)
         .addResource(new ValidateResource(ruleEngineService, fileService))
@@ -64,12 +65,12 @@ class ValidateResourceTest {
         var multipart = new FormDataMultiPart()
             .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
+        Mockito.doNothing().when(fileService).checkBaseFolderSecurity(Path.of("it/is/here"));
+
         var response = EXT.target("/validate")
             .register(MultiPartFeature.class)
             .request()
             .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
-
-        Mockito.verifyNoInteractions(fileService);
 
         assertEquals("it/is/here", response.getBagLocation());
         assertEquals("here", response.getName());
