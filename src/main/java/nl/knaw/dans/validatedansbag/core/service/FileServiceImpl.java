@@ -95,12 +95,13 @@ public class FileServiceImpl implements FileService {
 
             while (entry != null) {
                 var targetPath = tempPath.resolve(entry.getName());
+                Path securePath = getSecurePath(targetPath);
 
                 if (entry.isDirectory()) {
-                    Files.createDirectories(targetPath);
+                    Files.createDirectories(securePath);
                 }
                 else {
-                    writeStreamToFile(input, targetPath);
+                    writeStreamToFile(input, securePath);
                 }
 
                 entry = input.getNextEntry();
