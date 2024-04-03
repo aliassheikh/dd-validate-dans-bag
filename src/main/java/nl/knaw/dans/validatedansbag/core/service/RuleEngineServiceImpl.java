@@ -46,7 +46,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     public List<RuleValidationResult> validateBag(Path path, DepositType depositType) throws Exception {
         log.info("Validating bag on path '{}', deposit type is {}", path, depositType);
 
-        fileService.checkBaseFolderSecurity(path);
+        //fileService.checkBaseFolderSecurity(path);
 
         if (!fileService.isReadable(path)) {
             log.warn("Path {} could not not be found or is not readable", path);

@@ -46,5 +46,6 @@ public interface FileService {
 
     Optional<Path> getFirstDirectory(Path path) throws IOException;
 
-    void checkBaseFolderSecurity(Path path) throws RuntimeException;
+    //void checkBaseFolderSecurity(Path path) throws RuntimeException;
+    Path getSecurePath(Path path) throws RuntimeException;
 }
