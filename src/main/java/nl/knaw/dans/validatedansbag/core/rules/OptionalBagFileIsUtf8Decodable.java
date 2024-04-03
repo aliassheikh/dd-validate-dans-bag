@@ -34,8 +34,6 @@ public class OptionalBagFileIsUtf8Decodable implements BagValidatorRule {
     public RuleResult validate(Path path) throws Exception {
         try {
             var target = path.resolve(filename);
-            //fileService.checkBaseFolderSecurity(target);
-
             if (fileService.exists(target)) {
                 fileService.readFileContents(target, StandardCharsets.UTF_8);
                 return RuleResult.ok();

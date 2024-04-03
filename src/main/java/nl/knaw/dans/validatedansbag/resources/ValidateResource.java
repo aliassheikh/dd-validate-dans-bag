@@ -75,7 +75,6 @@ public class ValidateResource {
             else {
                 var locationPath = java.nio.file.Path.of(location);
                 var securePath = fileService.getSecurePath(locationPath);
-//                fileService.checkBaseFolderSecurity(locationPath);
                 validateResult = validatePath(securePath, depositType);
             }
 
