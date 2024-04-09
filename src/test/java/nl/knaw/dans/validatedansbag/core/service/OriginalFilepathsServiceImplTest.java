@@ -97,6 +97,8 @@ class OriginalFilepathsServiceImplTest {
         Path basePath = Path.of(OriginalFilepathsServiceImplTest.class.getClassLoader().getName()).toAbsolutePath();
         var fileServiceImp = new FileServiceImpl(basePath);
         Path testPath = Path.of("/it/is/here");
-        assertThrows(IllegalArgumentException.class, () -> fileServiceImp.getSecurePath(testPath));
+        assertThatThrownBy( () -> fileServiceImp.getSecurePath(testPath))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("XXX");
     }
 }
