@@ -26,7 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OriginalFilepathsServiceImplTest {
     final FileService fileService = Mockito.mock(FileService.class);
@@ -99,6 +99,6 @@ class OriginalFilepathsServiceImplTest {
         Path testPath = Path.of("/it/is/here");
         assertThatThrownBy( () -> fileServiceImp.getSecurePath(testPath))
                     .isInstanceOf(IllegalArgumentException.class)
-                    .hasMessage("XXX");
+                    .hasMessage(String.format("Insecure Path %s", testPath.normalize().toAbsolutePath()));
     }
 }
