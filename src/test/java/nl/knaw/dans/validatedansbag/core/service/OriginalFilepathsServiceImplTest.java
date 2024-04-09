@@ -93,7 +93,7 @@ class OriginalFilepathsServiceImplTest {
     }
 
     @Test
-     void getSecurePath_should_throws_IllegalArgumentException(){
+     void getSecurePath_should_throw_IllegalArgumentException(){
         Path basePath = Path.of(OriginalFilepathsServiceImplTest.class.getClassLoader().getName()).toAbsolutePath();
         var fileServiceImp = new FileServiceImpl(basePath);
         Path testPath = Path.of("/it/is/here");
