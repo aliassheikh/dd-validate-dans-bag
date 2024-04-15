@@ -20,8 +20,9 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.forms.MultiPartBundle;
+import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClientImpl;
-import nl.knaw.dans.validatedansbag.core.config.DdValidateDansBagConfiguration;
+import nl.knaw.dans.validatedansbag.config.DdValidateDansBagConfiguration;
 import nl.knaw.dans.validatedansbag.core.engine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.core.rules.RuleSets;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReaderImpl;
@@ -43,6 +44,7 @@ import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateOkYamlMessageBodyWriter;
 import nl.knaw.dans.validatedansbag.resources.ValidateResource;
+import nl.knaw.dans.vaultcatalog.client.invoker.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.resources.DefaultApi;
 
 public class DdValidateDansBagApplication extends Application<DdValidateDansBagConfiguration> {
@@ -71,7 +73,8 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
             dataverseService = new DataverseServiceImpl(configuration.getDataverse().build(environment, "dd-validate-dans-bag/dataverse"));
         }
 
-        var vaultService = getVaultService(configuration);
+        var vaultCatalogClient = getVaultCatalogClient(configuration);
+
         var fileService = new FileServiceImpl(configuration.getValidation().getBaseFolder());
         var bagItMetadataReader = new BagItMetadataReaderImpl();
         var xmlReader = new XmlReaderImpl();
@@ -86,21 +89,21 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
 
         var ruleEngine = new RuleEngineImpl();
         var ruleSets = new RuleSets(dataverseService,
-                fileService,
-                filesXmlService,
-                originalFilepathsService,
-                xmlReader,
-                bagItMetadataReader,
-                xmlSchemaValidator,
-                licenseValidator,
-                identifierValidator,
-                polygonListValidator,
-                organizationIdentifierPrefixValidator,
-                vaultService
+            fileService,
+            filesXmlService,
+            originalFilepathsService,
+            xmlReader,
+            bagItMetadataReader,
+            xmlSchemaValidator,
+            licenseValidator,
+            identifierValidator,
+            polygonListValidator,
+            organizationIdentifierPrefixValidator,
+            vaultCatalogClient
         );
 
         var ruleEngineService = new RuleEngineServiceImpl(ruleEngine, fileService,
-                configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
+            configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
 
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new ValidateResource(ruleEngineService, fileService));
@@ -116,11 +119,16 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         }
     }
 
-    private VaultCatalogClient getVaultService(DdValidateDansBagConfiguration configuration) {
+    private VaultCatalogClient getVaultCatalogClient(DdValidateDansBagConfiguration configuration) {
         if (configuration.getVaultCatalog() != null) {
-            var api = new DefaultApi();
-            api.getApiClient().setBasePath(configuration.getVaultCatalog().getBaseUrl().toASCIIString());
-            return new VaultCatalogClientImpl(api);
+            var vaultCatalogProxy = new ClientProxyBuilder<ApiClient, DefaultApi>()
+                .apiClient(new ApiClient())
+                .basePath(configuration.getVaultCatalog().getBaseUrl())
+                .httpClient(configuration.getVaultCatalog().getHttpClient())
+                .defaultApiCtor(DefaultApi::new)
+                .build();
+
+            return new VaultCatalogClientImpl(vaultCatalogProxy);
         }
 
         return null;

@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package nl.knaw.dans.validatedansbag.core.config;
+package nl.knaw.dans.validatedansbag.config;
 
 import io.dropwizard.core.Configuration;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import nl.knaw.dans.lib.util.DataverseClientFactory;
+import nl.knaw.dans.validation.AtLeastOneOf;
+import nl.knaw.dans.validation.MutuallyExclusive;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
-@Getter
-@Setter
+@Data 
+@AtLeastOneOf(fields = {"dataverse", "vaultCatalog"})
+@MutuallyExclusive(fields = {"dataverse", "vaultCatalog"})
 public class DdValidateDansBagConfiguration extends Configuration {
 
     @Valid
