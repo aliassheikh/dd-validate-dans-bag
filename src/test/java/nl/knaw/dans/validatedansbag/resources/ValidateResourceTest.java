@@ -65,7 +65,8 @@ class ValidateResourceTest {
         var multipart = new FormDataMultiPart()
             .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
-        Mockito.doNothing().when(fileService).checkBaseFolderSecurity(Path.of("it/is/here"));
+        Path testPath = Path.of("it/is/here");
+        Mockito.doReturn(testPath).when(fileService).getSecurePath(testPath);
 
         var response = EXT.target("/validate")
             .register(MultiPartFeature.class)

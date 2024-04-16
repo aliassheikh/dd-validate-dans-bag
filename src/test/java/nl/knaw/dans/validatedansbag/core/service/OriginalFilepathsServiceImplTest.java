@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class OriginalFilepathsServiceImplTest {
     final FileService fileService = Mockito.mock(FileService.class);
@@ -37,9 +38,11 @@ class OriginalFilepathsServiceImplTest {
 
     @Test
     void getMapping_should_map_files_to_original_paths_based_on_txt() throws Exception {
-        var contents = "data/12.txt data/leeg.txt\n"
-            + "data/13.txt data/sub/leeg2.txt\n"
-            + "data/14.txt data/sub/sub/vacio.txt\n";
+        var contents = """
+                data/12.txt data/leeg.txt
+                data/13.txt data/sub/leeg2.txt
+                data/14.txt data/sub/sub/vacio.txt
+                """;
 
         Mockito.when(fileService.readFileContents(Mockito.eq(Path.of("bagdir/original-filepaths.txt"))))
             .thenReturn(contents.getBytes(StandardCharsets.UTF_8));
@@ -58,9 +61,11 @@ class OriginalFilepathsServiceImplTest {
 
     @Test
     void getMapping_should_ignore_row_with_1_item() throws Exception {
-        var contents = "data/12.txt data/leeg.txt\n"
-            + "data/13.txt data/sub/leeg2.txt\n"
-            + "singleitem\n";
+        var contents = """
+                data/12.txt data/leeg.txt
+                data/13.txt data/sub/leeg2.txt
+                singleitem
+                """;
 
         Mockito.when(fileService.readFileContents(Mockito.eq(Path.of("bagdir/original-filepaths.txt"))))
             .thenReturn(contents.getBytes(StandardCharsets.UTF_8));
@@ -85,5 +90,15 @@ class OriginalFilepathsServiceImplTest {
         var result = service.getMapping(Path.of("bagdir"));
 
         assertEquals(0, result.size());
+    }
+
+    @Test
+     void getSecurePath_should_throw_IllegalArgumentException(){
+        Path basePath = Path.of(OriginalFilepathsServiceImplTest.class.getClassLoader().getName()).toAbsolutePath();
+        var fileServiceImp = new FileServiceImpl(basePath);
+        Path testPath = Path.of("/it/is/here");
+        assertThatThrownBy( () -> fileServiceImp.getSecurePath(testPath))
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage(String.format("Insecure Path %s", testPath.normalize().toAbsolutePath()));
     }
 }

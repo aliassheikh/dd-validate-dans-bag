@@ -74,8 +74,8 @@ public class ValidateResource {
             }
             else {
                 var locationPath = java.nio.file.Path.of(location);
-                fileService.checkBaseFolderSecurity(locationPath);
-                validateResult = validatePath(locationPath, depositType);
+                var securePath = fileService.getSecurePath(locationPath);
+                validateResult = validatePath(securePath, depositType);
             }
 
             // this information is lost during the validation, so set it again here
