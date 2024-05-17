@@ -15,6 +15,8 @@ logging:
       currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-dans-bag/dd-validate-dans-bag.log
       type: file
       timeZone: system
+  loggers:
+    'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
 
 #
 # The following two sections determine whether the validation will be done for the Data Station context or the

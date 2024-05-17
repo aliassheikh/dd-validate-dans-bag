@@ -14,7 +14,8 @@ server:
 logging:
   level: INFO
   loggers:
-    "nl.knaw.dans": TRACE
+    'nl.knaw.dans': DEBUG
+    'org.hibernate.engine.internal.StatisticalLoggingSessionEventListener': 'OFF'
   appenders:
     - type: console
       logFormat: "%-5p [%d{ISO8601}] [%t] %c: %m%n%rEx"
