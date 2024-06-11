@@ -5,7 +5,7 @@ Description=Dd Validate Dans Bag Service
 ExecStart=/opt/dans.knaw.nl/dd-validate-dans-bag/bin/dd-validate-dans-bag server /etc/opt/dans.knaw.nl/dd-validate-dans-bag/config.yml
 # Java returns 143 even if the SIGTERM was handled correctly.
 SuccessExitStatus=143
-Environment="INITIAL_HEAP_SIZE=-Xms64m"
+Environment="JAVA_OPTS=-Xms64m"
 Environment="LC_ALL=en_US.UTF-8"
 
 User=dd-validate-dans-bag
