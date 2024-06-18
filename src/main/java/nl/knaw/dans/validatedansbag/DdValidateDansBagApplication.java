@@ -21,6 +21,7 @@ import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.forms.MultiPartBundle;
 import nl.knaw.dans.lib.util.ClientProxyBuilder;
+import nl.knaw.dans.lib.util.DataverseHealthCheck;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClientImpl;
 import nl.knaw.dans.validatedansbag.config.DdValidateDansBagConfiguration;
 import nl.knaw.dans.validatedansbag.core.engine.RuleEngineImpl;
@@ -39,7 +40,6 @@ import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.LicenseValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.OrganizationIdentifierPrefixValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.PolygonListValidatorImpl;
-import nl.knaw.dans.validatedansbag.health.DataverseHealthCheck;
 import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateOkYamlMessageBodyWriter;
@@ -69,8 +69,9 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
 
         DataverseService dataverseService = null;
 
+        var dataverseClient = configuration.getDataverse().build(environment, "dd-validate-dans-bag/dataverse");
         if (configuration.getDataverse() != null) {
-            dataverseService = new DataverseServiceImpl(configuration.getDataverse().build(environment, "dd-validate-dans-bag/dataverse"));
+            dataverseService = new DataverseServiceImpl(dataverseClient);
         }
 
         var vaultCatalogClient = getVaultCatalogClient(configuration);
@@ -110,7 +111,7 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         environment.jersey().register(new ValidateOkYamlMessageBodyWriter());
 
         environment.healthChecks().register("xml-schemas", new XmlSchemaHealthCheck(xmlSchemaValidator));
-        environment.healthChecks().register("dataverse", new DataverseHealthCheck(dataverseService));
+        environment.healthChecks().register("dataverse", new DataverseHealthCheck(dataverseClient));
     }
 
     private void validateContextConfiguration(DdValidateDansBagConfiguration configuration) {
