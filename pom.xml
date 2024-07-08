@@ -28,7 +28,7 @@
 
 
     <artifactId>dd-validate-dans-bag</artifactId>
-    <version>1.4.3-SNAPSHOT</version>
+    <version>1.5.0</version>
 
     <name>DD Validate Dans Bag Service</name>
     <url>https://github.com/DANS-KNAW/dd-validate-dans-bag</url>
@@ -41,7 +41,7 @@
 
     <scm>
         <developerConnection>scm:git:ssh://github.com/DANS-KNAW/${project.artifactId}</developerConnection>
-        <tag>HEAD</tag>
+        <tag>v1.5.0</tag>
     </scm>
 
     <dependencies>
