@@ -68,10 +68,11 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         validateContextConfiguration(configuration);
 
         DataverseService dataverseService = null;
-
-        var dataverseClient = configuration.getDataverse().build(environment, "dd-validate-dans-bag/dataverse");
+        
         if (configuration.getDataverse() != null) {
+            var dataverseClient = configuration.getDataverse().build(environment, "dd-validate-dans-bag/dataverse");
             dataverseService = new DataverseServiceImpl(dataverseClient);
+            environment.healthChecks().register("dataverse", new DataverseHealthCheck(dataverseClient));
         }
 
         var vaultCatalogClient = getVaultCatalogClient(configuration);
@@ -111,7 +112,6 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         environment.jersey().register(new ValidateOkYamlMessageBodyWriter());
 
         environment.healthChecks().register("xml-schemas", new XmlSchemaHealthCheck(xmlSchemaValidator));
-        environment.healthChecks().register("dataverse", new DataverseHealthCheck(dataverseClient));
     }
 
     private void validateContextConfiguration(DdValidateDansBagConfiguration configuration) {

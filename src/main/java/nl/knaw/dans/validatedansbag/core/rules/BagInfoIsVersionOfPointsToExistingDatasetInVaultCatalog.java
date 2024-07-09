@@ -43,19 +43,33 @@ public class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog implements 
         log.trace("Using Is-Version-Of value '{}' to find a matching dataset", isVersionOf);
 
         if (isVersionOf != null) {
-            var dataset = vaultCatalogClient.findDatasetBySwordToken(isVersionOf);
+            var swordToken = convertToSwordToken(isVersionOf);
+            var dataset = vaultCatalogClient.findDatasetBySwordToken(swordToken);
 
             if (dataset.isEmpty()) {
-                log.debug("Dataset with sword token '{}' not found", isVersionOf);
+                log.debug("Dataset with sword token '{}' not found", swordToken);
                 // no result means it does not exist
                 return RuleResult.error(String.format("If 'Is-Version-Of' is specified, it must be a valid SWORD token in the vault catalog; no tokens were found: %s", isVersionOf));
             }
             else {
-                log.debug("Dataset with sword token '{}': {}", isVersionOf, dataset.get());
+                log.debug("Dataset with sword token '{}': {}", swordToken, dataset.get());
                 return RuleResult.ok();
             }
         }
 
         return RuleResult.skipDependencies();
     }
+
+    private String convertToSwordToken(String isVersionOf) {
+        if (isVersionOf.startsWith("sword:")) {
+            return isVersionOf;
+        }
+        else if (isVersionOf.startsWith("urn:uuid:")) {
+            return "sword:" + isVersionOf.substring("urn:uuid:".length());
+        }
+        else {
+            throw new IllegalArgumentException("Is-Version-Of value must start with 'sword:' or 'urn:uuid:'");
+        }
+    }
+
 }

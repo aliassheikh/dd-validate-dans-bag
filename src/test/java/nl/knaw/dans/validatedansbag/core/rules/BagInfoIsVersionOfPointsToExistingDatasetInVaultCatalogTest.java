@@ -38,8 +38,8 @@ class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalogTest {
         Mockito.doReturn("urn:uuid:is-version-of-id")
             .when(metadataReader).getSingleField(Mockito.any(), Mockito.eq("Is-Version-Of"));
 
-        Mockito.doReturn(Optional.of(new DatasetDto().swordToken("urn:uuid:is-version-of-id")))
-            .when(vaultService).findDatasetBySwordToken(Mockito.eq("urn:uuid:is-version-of-id"));
+        Mockito.doReturn(Optional.of(new DatasetDto().swordToken("sword:is-version-of-id")))
+            .when(vaultService).findDatasetBySwordToken(Mockito.eq("sword:is-version-of-id"));
 
         var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultService, metadataReader);
         var result = rule.validate(Path.of("bagdir"));
@@ -63,9 +63,9 @@ class BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalogTest {
         var metadataReader = Mockito.mock(BagItMetadataReader.class);
 
         Mockito.doReturn(Optional.empty())
-            .when(vaultCatalog).findDatasetBySwordToken(Mockito.eq("urn:uuid:is-version-of-id"));
+            .when(vaultCatalog).findDatasetBySwordToken(Mockito.eq("sword:is-version-of-id"));
 
-        Mockito.doReturn("urn:uuid:is-version-of-id")
+        Mockito.doReturn("sword:is-version-of-id")
             .when(metadataReader).getSingleField(Mockito.any(), Mockito.eq("Is-Version-Of"));
 
         var rule = new BagInfoIsVersionOfPointsToExistingDatasetInVaultCatalog(vaultCatalog, metadataReader);
