@@ -49,6 +49,33 @@ validation:
   baseFolder: "/var/opt/dans.knaw.nl/tmp/"
   otherIdPrefixes: []
 
+  validTerms:
+    configDir: "/etc/opt/dans.knaw.nl/dd-validate-dans-bag"
+    validTermsFiles:
+      - schemeUri: 'https://vocabularies.dans.knaw.nl/collections/'
+        termsFile: 'DansCollections-valid-terms.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/rn/a4a7933c-e096-4bcf-a921-4f70a78749fe'
+        termsFile: 'artefacten-valid-terms.txt'
+        codesFile: 'artefacten-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/b6df7840-67bf-48bd-aa56-7ee39435d2ed'
+        termsFile: 'artefacten-valid-terms.txt'
+        codesFile: 'artefacten-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/e9546020-4b28-4819-b0c2-29e7c864c5c0'
+        termsFile: 'complextypen-valid-terms.txt'
+        codesFile: 'complextypen-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/22cbb070-6542-48f0-8afe-7d98d398cc0b'
+        termsFile: 'artefacten-valid-terms.txt'
+        codesFile: 'artefacten-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/9b688754-1315-484b-9c89-8817e87c1e84'
+        termsFile: 'periodes-valid-terms.txt'
+        codesFile: 'periodes-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e'
+        termsFile: 'rapporten-valid-terms.txt'
+        codesFile: 'rapporten-valid-codes.txt'
+      - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/554ca1ec-3ed8-42d3-ae4b-47bcb848b238'
+        termsFile: 'verwervingswijzen-valid-terms.txt'
+        codesFile: 'verwervingswijzen-valid-codes.txt'
+
   xmlSchemas:
       dataset.xml:  "https://easy.dans.knaw.nl/schemas/md/ddm/ddm.xsd"
       files.xml: "https://easy.dans.knaw.nl/schemas/bag/metadata/files/files.xsd"
