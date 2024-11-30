@@ -91,7 +91,6 @@ class ValidateResourceIntegrationTest {
     static {
         EXT = ResourceExtension.builder()
                 .addProvider(MultiPartFeature.class)
-                .addProvider(ValidateOkYamlMessageBodyWriter.class)
                 .addResource(buildValidateResource())
                 .build();
     }
@@ -365,35 +364,6 @@ class ValidateResourceIntegrationTest {
         assertThat(response.getRuleViolations().get(0).getRule()).isEqualTo("1.1.1");
         assertThat(response.getRuleViolations().get(0).getViolation())
                 .endsWith("original-metadata.zip] is in the payload directory but isn't listed in any manifest!");
-    }
-
-    @Test
-    void validateZipFile_should_return_a_textual_representation_when_requested() throws Exception {
-        var inputStream = Files.newInputStream(Path.of(baseTestFolder, "/zips/invalid-sha1.zip"));
-
-        var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
-        var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
-        Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
-
-        var response = EXT.target("/validate")
-                .request()
-                .header("accept", "text/plain")
-                .header("Authorization", basicUsernamePassword("user001", "user001"))
-                .post(Entity.entity(inputStream, MediaType.valueOf("application/zip")), String.class);
-
-        assertTrue(response.contains("Bag location:"));
-        assertTrue(response.contains("Name:"));
-        assertTrue(response.contains("Profile version:"));
-        assertTrue(response.contains("Information package type:"));
-        assertTrue(response.contains("Is compliant:"));
-        assertTrue(response.contains("Rule violations:"));
     }
 
     @Test

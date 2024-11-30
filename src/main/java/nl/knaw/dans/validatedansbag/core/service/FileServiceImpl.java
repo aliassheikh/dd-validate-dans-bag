@@ -32,9 +32,17 @@ import java.util.zip.ZipInputStream;
 
 public class FileServiceImpl implements FileService {
     private final Path baseFolder;
+    private final Path tempFolder;
 
     public FileServiceImpl(Path baseFolder) {
-        this.baseFolder = baseFolder;
+        this.baseFolder = baseFolder.normalize().toAbsolutePath();
+
+        try {
+            this.tempFolder = Files.createDirectories(this.baseFolder.resolve("temp"));
+        }
+        catch (IOException e) {
+            throw new RuntimeException("Could not create temp directory", e);
+        }
     }
 
     @Override
@@ -84,7 +92,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public Path extractZipFile(InputStream inputStream) throws IOException {
-        var tempPath = Files.createTempDirectory(this.baseFolder, "bag-");
+        var tempPath = Files.createTempDirectory(this.tempFolder, "bag-");
 
         try (var input = new ZipInputStream(inputStream)) {
             var entry = input.getNextEntry();

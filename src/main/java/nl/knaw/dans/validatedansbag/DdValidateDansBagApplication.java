@@ -16,7 +16,6 @@
 
 package nl.knaw.dans.validatedansbag;
 
-import io.dropwizard.configuration.FileConfigurationSourceProvider;
 import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
@@ -45,8 +44,9 @@ import nl.knaw.dans.validatedansbag.core.validator.OrganizationIdentifierPrefixV
 import nl.knaw.dans.validatedansbag.core.validator.PolygonListValidatorImpl;
 import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
-import nl.knaw.dans.validatedansbag.resources.ValidateOkYamlMessageBodyWriter;
+import nl.knaw.dans.validatedansbag.resources.ValidateLocalDirApiResource;
 import nl.knaw.dans.validatedansbag.resources.ValidateResource;
+import nl.knaw.dans.validatedansbag.resources.ValidateZipApiResource;
 import nl.knaw.dans.vaultcatalog.client.invoker.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.resources.DefaultApi;
 
@@ -55,7 +55,6 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
@@ -125,7 +124,8 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
 
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new ValidateResource(ruleEngineService, fileService));
-        environment.jersey().register(new ValidateOkYamlMessageBodyWriter());
+        environment.jersey().register(new ValidateZipApiResource(ruleEngineService, fileService));
+        environment.jersey().register(new ValidateLocalDirApiResource(ruleEngineService));
 
         environment.healthChecks().register("xml-schemas", new XmlSchemaHealthCheck(xmlSchemaValidator));
     }

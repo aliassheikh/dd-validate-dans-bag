@@ -37,6 +37,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatedansbag.DdValidateDansBagApplication</main-class>
+        <dd-validate-dans-bag-api.version>0.5.1-SNAPSHOT</dd-validate-dans-bag-api.version>
     </properties>
 
     <scm>
