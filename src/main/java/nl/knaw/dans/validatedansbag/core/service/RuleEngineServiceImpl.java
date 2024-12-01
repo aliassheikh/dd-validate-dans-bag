@@ -73,7 +73,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         result.setBagLocation(bagLocation);
         result.setIsCompliant(isValid);
         result.setName(path.getFileName().toString());
-        result.setProfileVersion("1.1.0");
+        result.setProfileVersion("1.2.0");
         result.setInformationPackageType(toInfoPackageType(depositType));
         result.setRuleViolations(results.stream()
             .filter(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE))

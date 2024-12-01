@@ -60,7 +60,7 @@ public class RuleEngineImpl implements RuleEngine {
         // create a copy, because we will modify this list
         var remainingRules = new ArrayList<>(rulesToExecute);
 
-        while (remainingRules.size() > 0) {
+        while (!remainingRules.isEmpty()) {
             var toRemove = new HashSet<NumberedRule>();
 
             for (var rule : remainingRules) {
@@ -82,19 +82,11 @@ public class RuleEngineImpl implements RuleEngine {
                     var response = rule.getRule().validate(bag);
 
                     log.trace("Task result: {}", response.getStatus());
-                    RuleValidationResult ruleValidationResult = null;
-
-                    switch (response.getStatus()) {
-                        case SUCCESS:
-                            ruleValidationResult = new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SUCCESS);
-                            break;
-                        case SKIP_DEPENDENCIES:
-                            ruleValidationResult = new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SUCCESS, true);
-                            break;
-                        case ERROR:
-                            ruleValidationResult = new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.FAILURE, formatErrorMessages(response.getErrorMessages()));
-                            break;
-                    }
+                    RuleValidationResult ruleValidationResult = switch (response.getStatus()) {
+                        case SUCCESS -> new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SUCCESS);
+                        case SKIP_DEPENDENCIES -> new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SUCCESS, true);
+                        case ERROR -> new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.FAILURE, formatErrorMessages(response.getErrorMessages()));
+                    };
 
                     ruleResults.put(number, ruleValidationResult);
 

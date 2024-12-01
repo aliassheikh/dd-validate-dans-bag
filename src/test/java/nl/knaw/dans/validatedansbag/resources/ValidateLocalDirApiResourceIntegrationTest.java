@@ -53,7 +53,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -61,19 +60,18 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static nl.knaw.dans.validatedansbag.resources.util.TestUtil.basicUsernamePassword;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(DropwizardExtensionsSupport.class)
-class ValidateResourceIntegrationTest {
+class ValidateLocalDirApiResourceIntegrationTest {
     public static final ResourceExtension EXT;
 
     private static final DataverseService dataverseService = Mockito.mock(DataverseService.class);
     private static final XmlSchemaValidator xmlSchemaValidator = Mockito.mock(XmlSchemaValidator.class);
-    private static final String baseTestFolder = Objects.requireNonNull(Objects.requireNonNull(ValidateResourceIntegrationTest.class.getClassLoader().getResource("")).getPath());
+    private static final String baseTestFolder = Objects.requireNonNull(Objects.requireNonNull(ValidateLocalDirApiResourceIntegrationTest.class.getClassLoader().getResource("")).getPath());
 
     private static final LicenseValidator licenseValidator = new LicenseValidator() {
 
@@ -83,19 +81,19 @@ class ValidateResourceIntegrationTest {
         }
 
         @Override
-        public boolean isValidLicense(String license)  {
+        public boolean isValidLicense(String license) {
             return true;
         }
     };
 
     static {
         EXT = ResourceExtension.builder()
-                .addProvider(MultiPartFeature.class)
-                .addResource(buildValidateResource())
-                .build();
+            .addProvider(MultiPartFeature.class)
+            .addResource(buildValidateResource())
+            .build();
     }
 
-    static ValidateResource buildValidateResource() {
+    static ValidateLocalDirApiResource buildValidateResource() {
         var fileService = new FileServiceImpl(Path.of(baseTestFolder));
         var bagItMetadataReader = new BagItMetadataReaderImpl();
         var xmlReader = new XmlReaderImpl();
@@ -106,18 +104,18 @@ class ValidateResourceIntegrationTest {
         var vaultService = Mockito.mock(VaultCatalogClient.class);
 
         var organizationIdentifierPrefixValidator = new OrganizationIdentifierPrefixValidatorImpl(
-                List.of("u1:", "u2:")
+            List.of("u1:", "u2:")
         );
 
         // set up the engine and the service that has a default set of rules
         var ruleEngine = new RuleEngineImpl();
         var ruleSets = new RuleSets(
-                dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
-                bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
-                vaultService, Map.of(), Map.of());
+            dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
+            bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
+            vaultService, Map.of(), Map.of());
 
         var ruleEngineService = new RuleEngineServiceImpl(ruleEngine, fileService, ruleSets.getDataStationSet());
-        return new ValidateResource(ruleEngineService, fileService);
+        return new ValidateLocalDirApiResource(ruleEngineService);
     }
 
     @BeforeEach
@@ -133,27 +131,25 @@ class ValidateResourceIntegrationTest {
         var data = new ValidateCommandDto();
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertFalse(response.getIsCompliant());
-        assertEquals("1.1.0", response.getProfileVersion());
+        assertEquals("1.2.0", response.getProfileVersion());
         assertEquals(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
         assertFalse(response.getRuleViolations().isEmpty());
@@ -166,16 +162,14 @@ class ValidateResourceIntegrationTest {
         var data = new ValidateCommandDto();
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
         Mockito.when(xmlSchemaValidator.validateDocument(Mockito.any(), Mockito.anyString()))
-                .thenThrow(new SAXException("Something is broken"));
+            .thenThrow(new SAXException("Something is broken"));
 
-        try (var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), Response.class)) {
+        try (var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), Response.class)) {
 
             assertEquals(500, response.getStatus());
         }
@@ -189,71 +183,68 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.MIGRATION);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
         var searchResultsJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
-                    "total_count": 1,
-                    "start": 0,
-                    "spelling_alternatives": {},
-                    "items": [
-                      {
-                        "name": "Manual Test",
-                        "type": "dataset",
-                        "url": "https://doi.org/10.5072/FK2/QZZSST",
-                        "global_id": "doi:10.5072/FK2/QZZSST"
-                      }
-                    ],
-                    "count_in_response": 1
+            {
+              "status": "OK",
+              "data": {
+                "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
+                "total_count": 1,
+                "start": 0,
+                "spelling_alternatives": {},
+                "items": [
+                  {
+                    "name": "Manual Test",
+                    "type": "dataset",
+                    "url": "https://doi.org/10.5072/FK2/QZZSST",
+                    "global_id": "doi:10.5072/FK2/QZZSST"
                   }
-                }""";
+                ],
+                "count_in_response": 1
+              }
+            }""";
 
         var dataverseRoleAssignmentsJson = """
+            {
+              "status": "OK",
+              "data": [
                 {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 6,
-                      "assignee": "@user001",
-                      "roleId": 11,
-                      "_roleAlias": "datasetcreator",
-                      "definitionPointId": 2
-                    }
-                  ]
-                }""";
+                  "id": 6,
+                  "assignee": "@user001",
+                  "roleId": 11,
+                  "_roleAlias": "datasetcreator",
+                  "definitionPointId": 2
+                }
+              ]
+            }""";
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
 
         var swordTokenResult = new MockedDataverseResponse<SearchResult>(searchResultsJson, SearchResult.class);
         var dataverseRoleAssignmentsResult = new MockedDataverseResponse<List<RoleAssignmentReadOnly>>(dataverseRoleAssignmentsJson, List.class, RoleAssignmentReadOnly.class);
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
 
         Mockito.when(dataverseService.searchBySwordToken(Mockito.anyString()))
-                .thenReturn(swordTokenResult);
+            .thenReturn(swordTokenResult);
 
         Mockito.when(dataverseService.getDataverseRoleAssignments(Mockito.anyString()))
-                .thenReturn(dataverseRoleAssignmentsResult);
+            .thenReturn(dataverseRoleAssignmentsResult);
 
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertTrue(response.getIsCompliant());
-        assertEquals("1.1.0", response.getProfileVersion());
+        assertEquals("1.2.0", response.getProfileVersion());
         assertEquals(ValidateOkDto.InformationPackageTypeEnum.MIGRATION, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
         assertEquals(0, response.getRuleViolations().size());
@@ -267,29 +258,26 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.MIGRATION);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
 
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
 
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertFalse(response.getIsCompliant());
-        assertEquals("1.1.0", response.getProfileVersion());
+        assertEquals("1.2.0", response.getProfileVersion());
         assertEquals(ValidateOkDto.InformationPackageTypeEnum.MIGRATION, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
     }
@@ -301,27 +289,25 @@ class ValidateResourceIntegrationTest {
         var data = new ValidateCommandDto();
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertFalse(response.getIsCompliant());
-        assertEquals("1.1.0", response.getProfileVersion());
+        assertEquals("1.2.0", response.getProfileVersion());
         assertEquals(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
         assertThat(response.getRuleViolations().size()).isEqualTo(1);
@@ -337,33 +323,31 @@ class ValidateResourceIntegrationTest {
         var data = new ValidateCommandDto();
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertFalse(response.getIsCompliant());
-        assertEquals("1.1.0", response.getProfileVersion());
+        assertEquals("1.2.0", response.getProfileVersion());
         assertEquals(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
         assertThat(response.getRuleViolations().size()).isEqualTo(1);
         assertThat(response.getRuleViolations().get(0).getRule()).isEqualTo("1.1.1");
         assertThat(response.getRuleViolations().get(0).getViolation())
-                .endsWith("original-metadata.zip] is in the payload directory but isn't listed in any manifest!");
+            .endsWith("original-metadata.zip] is in the payload directory but isn't listed in any manifest!");
     }
 
     @Test
@@ -372,13 +356,10 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(baseTestFolder + "/some/non/existing/filename");
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
-        try (var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), Response.class)) {
+        try (var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), Response.class)) {
 
             assertEquals(400, response.getStatus());
         }
@@ -392,101 +373,98 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
         var searchResultsJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
-                    "total_count": 1,
-                    "start": 0,
-                    "spelling_alternatives": {},
-                    "items": [
-                      {
-                        "name": "Manual Test",
-                        "type": "dataset",
-                        "url": "https://doi.org/10.5072/FK2/QZZSST",
-                        "global_id": "doi:10.5072/FK2/QZZSST"
-                      }
-                    ],
-                    "count_in_response": 1
+            {
+              "status": "OK",
+              "data": {
+                "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
+                "total_count": 1,
+                "start": 0,
+                "spelling_alternatives": {},
+                "items": [
+                  {
+                    "name": "Manual Test",
+                    "type": "dataset",
+                    "url": "https://doi.org/10.5072/FK2/QZZSST",
+                    "global_id": "doi:10.5072/FK2/QZZSST"
                   }
-                }""";
+                ],
+                "count_in_response": 1
+              }
+            }""";
 
         var latestVersionJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "id": 2,
-                    "identifier": "FK2/QZZSST",
-                    "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
-                    "latestVersion": {
-                      "id": 2,
-                      "datasetId": 2,
-                      "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
-                      "storageIdentifier": "file://10.5072/FK2/QZZSST",
-                      "fileAccessRequest": false,
-                      "metadataBlocks": {
-                        "dansDataVaultMetadata": {
-                          "displayName": "Data Vault Metadata",
-                          "name": "dansDataVaultMetadata",
-                          "fields": [
-                            {
-                              "typeName": "dansSwordToken",
-                              "multiple": false,
-                              "typeClass": "primitive",
-                              "value": "urn:uuid:34632f71-11f8-48d8-9bf3-79551ad22b5e"
-                            },
-                            {
-                              "typeName": "dansOtherId",
-                              "multiple": false,
-                              "typeClass": "primitive",
-                              "value": "u1:organizational-identifier"
-                            }
-                          ]
+            {
+              "status": "OK",
+              "data": {
+                "id": 2,
+                "identifier": "FK2/QZZSST",
+                "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
+                "latestVersion": {
+                  "id": 2,
+                  "datasetId": 2,
+                  "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
+                  "storageIdentifier": "file://10.5072/FK2/QZZSST",
+                  "fileAccessRequest": false,
+                  "metadataBlocks": {
+                    "dansDataVaultMetadata": {
+                      "displayName": "Data Vault Metadata",
+                      "name": "dansDataVaultMetadata",
+                      "fields": [
+                        {
+                          "typeName": "dansSwordToken",
+                          "multiple": false,
+                          "typeClass": "primitive",
+                          "value": "urn:uuid:34632f71-11f8-48d8-9bf3-79551ad22b5e"
+                        },
+                        {
+                          "typeName": "dansOtherId",
+                          "multiple": false,
+                          "typeClass": "primitive",
+                          "value": "u1:organizational-identifier"
                         }
-                      }
+                      ]
                     }
                   }
-                }""";
+                }
+              }
+            }""";
 
         var dataverseRoleAssignmentsJson = """
+            {
+              "status": "OK",
+              "data": [
                 {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 6,
-                      "assignee": "@user001",
-                      "roleId": 11,
-                      "_roleAlias": "datasetcreator",
-                      "definitionPointId": 2
-                    }
-                  ]
-                }""";
+                  "id": 6,
+                  "assignee": "@user001",
+                  "roleId": 11,
+                  "_roleAlias": "datasetcreator",
+                  "definitionPointId": 2
+                }
+              ]
+            }""";
 
         var datasetRoleAssignmentsJson = """
+            {
+              "status": "OK",
+              "data": [
                 {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 6,
-                      "assignee": "@user001",
-                      "roleId": 11,
-                      "_roleAlias": "dataseteditor",
-                      "definitionPointId": 2
-                    }
-                  ]
-                }""";
+                  "id": 6,
+                  "assignee": "@user001",
+                  "roleId": 11,
+                  "_roleAlias": "dataseteditor",
+                  "definitionPointId": 2
+                }
+              ]
+            }""";
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
 
         var searchResult = new MockedDataverseResponse<SearchResult>(searchResultsJson, SearchResult.class);
         var latestVersionResult = new MockedDataverseResponse<DatasetLatestVersion>(latestVersionJson, DatasetLatestVersion.class);
@@ -496,27 +474,27 @@ class ValidateResourceIntegrationTest {
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
 
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
         Mockito.when(dataverseService.getDataverseRoleAssignments(Mockito.anyString()))
-                .thenReturn(dataverseRoleAssignmentsResult);
+            .thenReturn(dataverseRoleAssignmentsResult);
 
         Mockito.when(dataverseService.getDatasetRoleAssignments(Mockito.anyString()))
-                .thenReturn(datasetRoleAssignmentsResult);
+            .thenReturn(datasetRoleAssignmentsResult);
 
         Mockito.when(dataverseService.searchDatasetsByOrganizationalIdentifier(Mockito.anyString()))
-                .thenReturn(searchResult);
+            .thenReturn(searchResult);
 
         Mockito.when(dataverseService.getDataset(Mockito.anyString()))
-                .thenReturn(latestVersionResult);
+            .thenReturn(latestVersionResult);
 
         Mockito.when(dataverseService.searchBySwordToken(Mockito.anyString()))
-                .thenReturn(swordTokenResult);
+            .thenReturn(swordTokenResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         assertTrue(response.getIsCompliant());
         assertEquals("bag-with-is-version-of", response.getName());
@@ -530,96 +508,93 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
         var searchResultsJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
-                    "total_count": 1,
-                    "start": 0,
-                    "spelling_alternatives": {},
-                    "items": [
-                      {
-                        "name": "Manual Test",
-                        "type": "dataset",
-                        "url": "https://doi.org/10.5072/FK2/QZZSST",
-                        "global_id": "doi:10.5072/FK2/QZZSST"
-                      }
-                    ],
-                    "count_in_response": 1
+            {
+              "status": "OK",
+              "data": {
+                "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
+                "total_count": 1,
+                "start": 0,
+                "spelling_alternatives": {},
+                "items": [
+                  {
+                    "name": "Manual Test",
+                    "type": "dataset",
+                    "url": "https://doi.org/10.5072/FK2/QZZSST",
+                    "global_id": "doi:10.5072/FK2/QZZSST"
                   }
-                }""";
+                ],
+                "count_in_response": 1
+              }
+            }""";
 
         // Violation will be caused by: "value": "urn:uuid:wrong-uuid"
         var latestVersionJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "id": 2,
-                    "identifier": "FK2/QZZSST",
-                    "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
-                    "latestVersion": {
-                      "id": 2,
-                      "datasetId": 2,
-                      "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
-                      "storageIdentifier": "file://10.5072/FK2/QZZSST",
-                      "fileAccessRequest": false,
-                      "metadataBlocks": {
-                        "dansDataVaultMetadata": {
-                          "displayName": "Data Vault Metadata",
-                          "name": "dansDataVaultMetadata",
-                          "fields": [
-                            {
-                              "typeName": "dansOtherId",
-                              "multiple": false,
-                              "typeClass": "primitive",
-                              "value": "urn:uuid:wrong-uuid"
-                            }
-                          ]
+            {
+              "status": "OK",
+              "data": {
+                "id": 2,
+                "identifier": "FK2/QZZSST",
+                "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
+                "latestVersion": {
+                  "id": 2,
+                  "datasetId": 2,
+                  "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
+                  "storageIdentifier": "file://10.5072/FK2/QZZSST",
+                  "fileAccessRequest": false,
+                  "metadataBlocks": {
+                    "dansDataVaultMetadata": {
+                      "displayName": "Data Vault Metadata",
+                      "name": "dansDataVaultMetadata",
+                      "fields": [
+                        {
+                          "typeName": "dansOtherId",
+                          "multiple": false,
+                          "typeClass": "primitive",
+                          "value": "urn:uuid:wrong-uuid"
                         }
-                      }
+                      ]
                     }
                   }
-                }""";
+                }
+              }
+            }""";
 
         var dataverseRoleAssignmentsJson = """
+            {
+              "status": "OK",
+              "data": [
                 {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 6,
-                      "assignee": "@user001",
-                      "roleId": 11,
-                      "_roleAlias": "datasetcreator",
-                      "definitionPointId": 2
-                    }
-                  ]
-                }""";
+                  "id": 6,
+                  "assignee": "@user001",
+                  "roleId": 11,
+                  "_roleAlias": "datasetcreator",
+                  "definitionPointId": 2
+                }
+              ]
+            }""";
 
         var datasetRoleAssignmentsJson = """
+            {
+              "status": "OK",
+              "data": [
                 {
-                  "status": "OK",
-                  "data": [
-                    {
-                      "id": 6,
-                      "assignee": "@user001",
-                      "roleId": 11,
-                      "_roleAlias": "dataseteditor",
-                      "definitionPointId": 2
-                    }
-                  ]
-                }""";
+                  "id": 6,
+                  "assignee": "@user001",
+                  "roleId": 11,
+                  "_roleAlias": "dataseteditor",
+                  "definitionPointId": 2
+                }
+              ]
+            }""";
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
 
         var searchResult = new MockedDataverseResponse<SearchResult>(searchResultsJson, SearchResult.class);
         var latestVersionResult = new MockedDataverseResponse<DatasetLatestVersion>(latestVersionJson, DatasetLatestVersion.class);
@@ -629,30 +604,30 @@ class ValidateResourceIntegrationTest {
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
 
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
         Mockito.when(dataverseService.searchDatasetsByOrganizationalIdentifier(Mockito.anyString()))
-                .thenReturn(searchResult);
+            .thenReturn(searchResult);
 
         Mockito.when(dataverseService.getDataset(Mockito.anyString()))
-                .thenReturn(latestVersionResult);
+            .thenReturn(latestVersionResult);
 
         Mockito.when(dataverseService.searchBySwordToken(Mockito.anyString()))
-                .thenReturn(swordTokenResult);
+            .thenReturn(swordTokenResult);
 
         Mockito.when(dataverseService.getDataverseRoleAssignments(Mockito.anyString()))
-                .thenReturn(dataverseRoleAssignmentsResult);
+            .thenReturn(dataverseRoleAssignmentsResult);
 
         Mockito.when(dataverseService.getDatasetRoleAssignments(Mockito.anyString()))
-                .thenReturn(datasetRoleAssignmentsResult);
+            .thenReturn(datasetRoleAssignmentsResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         var failed = response.getRuleViolations().stream()
-                .map(ValidateOkRuleViolationsInnerDto::getRule).collect(Collectors.toSet());
+            .map(ValidateOkRuleViolationsInnerDto::getRule).collect(Collectors.toSet());
 
         assertEquals(Set.of("4.1(b)"), failed);
         assertFalse(response.getIsCompliant());
@@ -667,82 +642,79 @@ class ValidateResourceIntegrationTest {
         data.setBagLocation(filename);
         data.setPackageType(ValidateCommandDto.PackageTypeEnum.DEPOSIT);
 
-        var multipart = new FormDataMultiPart()
-                .field("command", data, MediaType.APPLICATION_JSON_TYPE);
-
         var searchResultsJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
-                    "total_count": 1,
-                    "start": 0,
-                    "spelling_alternatives": {},
-                    "items": [
-                      {
-                        "name": "Manual Test",
-                        "type": "dataset",
-                        "url": "https://doi.org/10.5072/FK2/QZZSST",
-                        "global_id": "doi:10.5072/FK2/QZZSST"
-                      }
-                    ],
-                    "count_in_response": 1
+            {
+              "status": "OK",
+              "data": {
+                "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
+                "total_count": 1,
+                "start": 0,
+                "spelling_alternatives": {},
+                "items": [
+                  {
+                    "name": "Manual Test",
+                    "type": "dataset",
+                    "url": "https://doi.org/10.5072/FK2/QZZSST",
+                    "global_id": "doi:10.5072/FK2/QZZSST"
                   }
-                }""";
+                ],
+                "count_in_response": 1
+              }
+            }""";
 
         // returns 0 items, causing the rule to be violated
         var swordTokenJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
-                    "total_count": 1,
-                    "start": 0,
-                    "spelling_alternatives": {},
-                    "items": [
-                    ],
-                    "count_in_response": 0
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "q": "NBN:urn:nbn:nl:ui:13-025de6e2-bdcf-4622-b134-282b4c590f42",
+                "total_count": 1,
+                "start": 0,
+                "spelling_alternatives": {},
+                "items": [
+                ],
+                "count_in_response": 0
+              }
+            }""";
 
         var latestVersionJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "id": 2,
-                    "identifier": "FK2/QZZSST",
-                    "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
-                    "latestVersion": {
-                      "id": 2,
-                      "datasetId": 2,
-                      "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
-                      "storageIdentifier": "file://10.5072/FK2/QZZSST",
-                      "fileAccessRequest": false,
-                      "metadataBlocks": {
-                        "dansDataVaultMetadata": {
-                          "displayName": "Data Vault Metadata",
-                          "name": "dansDataVaultMetadata",
-                          "fields": [
-                            {
-                              "typeName": "dansSwordToken",
-                              "multiple": false,
-                              "typeClass": "primitive",
-                              "value": "urn:uuid:34632f71-11f8-48d8-9bf3-79551ad22b5e"
-                            }
-                          ]
+            {
+              "status": "OK",
+              "data": {
+                "id": 2,
+                "identifier": "FK2/QZZSST",
+                "persistentUrl": "https://doi.org/10.5072/FK2/QZZSST",
+                "latestVersion": {
+                  "id": 2,
+                  "datasetId": 2,
+                  "datasetPersistentId": "doi:10.5072/FK2/QZZSST",
+                  "storageIdentifier": "file://10.5072/FK2/QZZSST",
+                  "fileAccessRequest": false,
+                  "metadataBlocks": {
+                    "dansDataVaultMetadata": {
+                      "displayName": "Data Vault Metadata",
+                      "name": "dansDataVaultMetadata",
+                      "fields": [
+                        {
+                          "typeName": "dansSwordToken",
+                          "multiple": false,
+                          "typeClass": "primitive",
+                          "value": "urn:uuid:34632f71-11f8-48d8-9bf3-79551ad22b5e"
                         }
-                      }
+                      ]
                     }
                   }
-                }""";
+                }
+              }
+            }""";
 
         var embargoResultJson = """
-                {
-                  "status": "OK",
-                  "data": {
-                    "message": "24"
-                  }
-                }""";
+            {
+              "status": "OK",
+              "data": {
+                "message": "24"
+              }
+            }""";
 
         var searchResult = new MockedDataverseResponse<SearchResult>(searchResultsJson, SearchResult.class);
         var latestVersionResult = new MockedDataverseResponse<DatasetLatestVersion>(latestVersionJson, DatasetLatestVersion.class);
@@ -750,24 +722,24 @@ class ValidateResourceIntegrationTest {
         var maxEmbargoDurationResult = new MockedDataverseResponse<DataMessage>(embargoResultJson, DataMessage.class);
 
         Mockito.when(dataverseService.getMaxEmbargoDurationInMonths())
-                .thenReturn(maxEmbargoDurationResult);
+            .thenReturn(maxEmbargoDurationResult);
 
         Mockito.when(dataverseService.searchDatasetsByOrganizationalIdentifier(Mockito.anyString()))
-                .thenReturn(searchResult);
+            .thenReturn(searchResult);
 
         Mockito.when(dataverseService.getDataset(Mockito.anyString()))
-                .thenReturn(latestVersionResult);
+            .thenReturn(latestVersionResult);
 
         Mockito.when(dataverseService.searchBySwordToken(Mockito.anyString()))
-                .thenReturn(swordTokenResult);
+            .thenReturn(swordTokenResult);
 
-        var response = EXT.target("/validate")
-                .register(MultiPartFeature.class)
-                .request()
-                .post(Entity.entity(multipart, multipart.getMediaType()), ValidateOkDto.class);
+        var response = EXT.target("/validateLocalDir")
+            .register(MultiPartFeature.class)
+            .request()
+            .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), ValidateOkDto.class);
 
         var failed = response.getRuleViolations().stream()
-                .map(ValidateOkRuleViolationsInnerDto::getRule).collect(Collectors.toSet());
+            .map(ValidateOkRuleViolationsInnerDto::getRule).collect(Collectors.toSet());
 
         assertEquals(Set.of("4.1(a)", "4.1(b)"), failed);
         assertFalse(response.getIsCompliant());

@@ -123,7 +123,6 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
             configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
 
         environment.jersey().register(new IllegalArgumentExceptionMapper());
-        environment.jersey().register(new ValidateResource(ruleEngineService, fileService));
         environment.jersey().register(new ValidateZipApiResource(ruleEngineService, fileService));
         environment.jersey().register(new ValidateLocalDirApiResource(ruleEngineService));
 
