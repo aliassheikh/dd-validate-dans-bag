@@ -148,6 +148,14 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- Include the API as a dependency so that a warning is issued if we are trying to release with a snapshot version -->
+        <dependency>
+            <groupId>nl.knaw.dans</groupId>
+            <artifactId>dd-validate-dans-bag-api</artifactId>
+            <version>${dd-validate-dans-bag-api.version}</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
