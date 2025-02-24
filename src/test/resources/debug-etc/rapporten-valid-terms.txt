@@ -1,4 +1,4 @@
-subject
+term
 https://data.cultureelerfgoed.nl/term/id/abr/2859427b-7533-492c-bba8-421a78d82c9d
 https://data.cultureelerfgoed.nl/term/id/abr/7a99aaba-c1e7-49a4-9dd8-d295dbcc870e
 https://data.cultureelerfgoed.nl/term/id/abr/62b650bb-3a11-44f3-b043-3a18ca4f8220

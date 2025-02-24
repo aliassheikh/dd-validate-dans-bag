@@ -1,4 +1,4 @@
-subject
+term
 https://vocabularies.dans.knaw.nl/collections
 https://vocabularies.dans.knaw.nl/collections/archaeology
 https://vocabularies.dans.knaw.nl/collections/archaeology/265bb584-ed54-4ef9-9132-30dfe082adb8
