@@ -74,7 +74,7 @@ public class BagInfoOrganizationalIdentifierExistsInDataset extends DataverseRul
             log.trace("Dataset with dansOtherId {} and 'Has-Organizational-Identifier' {} do not match", otherId, orgIdentifier);
             return RuleResult.error(String.format(
                     "Mismatch between 'dansOtherId' in dataverse and 'Has-Organizational-Identifier' in dataset: '%s' vs '%s'. They must either both be the same or both be absent",
-                    orgIdentifier, otherId
+                    otherId, orgIdentifier
             ));
         }
     }
