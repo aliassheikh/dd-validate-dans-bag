@@ -45,7 +45,6 @@ import nl.knaw.dans.validatedansbag.core.validator.PolygonListValidatorImpl;
 import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateLocalDirApiResource;
-import nl.knaw.dans.validatedansbag.resources.ValidateResource;
 import nl.knaw.dans.validatedansbag.resources.ValidateZipApiResource;
 import nl.knaw.dans.vaultcatalog.client.invoker.ApiClient;
 import nl.knaw.dans.vaultcatalog.client.resources.DefaultApi;
