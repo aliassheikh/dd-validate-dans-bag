@@ -25,8 +25,8 @@ import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class OriginalFilepathsServiceImplTest {
     final FileService fileService = Mockito.mock(FileService.class);
