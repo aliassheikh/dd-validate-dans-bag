@@ -13,7 +13,6 @@ server:
         archive: false
         timeZone: system
         currentLogFilename: /var/opt/dans.knaw.nl/log/dd-validate-dans-bag/request.log
-        logFormat: "%-5p [%d{ISO8601}] %c{0}: %m%n%dwREx"
 
 logging:
   level: INFO
