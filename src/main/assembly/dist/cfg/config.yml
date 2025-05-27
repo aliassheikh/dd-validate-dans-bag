@@ -55,6 +55,8 @@ vaultCatalog:
 #    userAgent: dd-validate-dans-bag
     
 validation:
+  # Base folder under which the bags to be validated must be placed.
+  # Note that when using the ZIP upload endpoint, the service will extract the ZIP file to a subdirectory called "temp" under this base folder. It will create this subdirectory if it does not exist.
   baseFolder: "/var/opt/dans.knaw.nl/tmp/"
   otherIdPrefixes: []
 
