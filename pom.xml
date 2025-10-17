@@ -170,9 +170,23 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration combine.children="override">
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>compilation-dependencies</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>unpack</goal>
@@ -206,16 +220,12 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration combine.children="override">
-                            <inputSpec>${project.build.directory}/openapi/dd-validate-dans-bag-api.yml</inputSpec>
                             <generatorName>jaxrs-spec</generatorName>
-                            <globalProperties>
-                                <skipFormModel>false</skipFormModel>
-                            </globalProperties>
-                            <configOptions combine.children="override">
-                                <apiPackage>nl.knaw.dans.validatedansbag.resources</apiPackage>
-                                <modelPackage>nl.knaw.dans.validatedansbag.api</modelPackage>
-                                <invokerPackage>nl.knaw.dans.validatedansbag.resources</invokerPackage>
-                            </configOptions>
+                            <inputSpec>${project.build.directory}/openapi/dd-validate-dans-bag-api.yml</inputSpec>
+                            <apiPackage>nl.knaw.dans.validatedansbag.resources</apiPackage>
+                            <modelPackage>nl.knaw.dans.validatedansbag.api</modelPackage>
+                            <invokerPackage>nl.knaw.dans.validatedansbag.resources</invokerPackage>
+                            <templateDirectory>${project.basedir}/src/main/resources/openapi-generator-templates</templateDirectory>
                         </configuration>
                     </execution>
                     <execution>
@@ -243,8 +253,8 @@
                 </executions>
             </plugin>
         </plugins>
-
     </build>
+
 
     <repositories>
         <repository>
