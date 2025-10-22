@@ -86,6 +86,8 @@ validation:
       - schemeUri: 'https://data.cultureelerfgoed.nl/term/id/abr/554ca1ec-3ed8-42d3-ae4b-47bcb848b238'
         termsFile: 'verwervingswijzen-valid-terms.txt'
         codesFile: 'verwervingswijzen-valid-codes.txt'
+      - schemeUri: 'http://vocab.getty.edu/aat/'
+        termsFile: 'aatc-valid-terms.txt'
 
   xmlSchemas:
       dataset.xml:  "https://easy.dans.knaw.nl/schemas/md/ddm/ddm.xsd"
