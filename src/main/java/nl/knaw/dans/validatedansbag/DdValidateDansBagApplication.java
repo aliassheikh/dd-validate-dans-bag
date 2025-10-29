@@ -20,6 +20,7 @@ import io.dropwizard.core.Application;
 import io.dropwizard.core.setup.Bootstrap;
 import io.dropwizard.core.setup.Environment;
 import io.dropwizard.forms.MultiPartBundle;
+import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.DataverseHealthCheck;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClientImpl;
@@ -59,6 +60,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class DdValidateDansBagApplication extends Application<DdValidateDansBagConfiguration> {
     public static void main(final String[] args) throws Exception {
         new DdValidateDansBagApplication().run(args);
@@ -118,6 +120,7 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
             schemeUriToValidCodes
         );
 
+        log.info("Using rule set: {}", configuration.getDataverse() != null ? "DATA STATION" : "VAAS");
         var ruleEngineService = new RuleEngineServiceImpl(ruleEngine, fileService,
             configuration.getDataverse() != null ? ruleSets.getDataStationSet() : ruleSets.getVaasSet());
 
