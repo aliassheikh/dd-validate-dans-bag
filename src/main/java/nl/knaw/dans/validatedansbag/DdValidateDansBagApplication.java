@@ -23,11 +23,12 @@ import io.dropwizard.forms.MultiPartBundle;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.DataverseHealthCheck;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClientImpl;
 import nl.knaw.dans.validatedansbag.config.DdValidateDansBagConfiguration;
 import nl.knaw.dans.validatedansbag.config.ValidTermsConfig;
 import nl.knaw.dans.validatedansbag.config.ValidTermsFileConfig;
-import nl.knaw.dans.validatedansbag.core.engine.RuleEngineImpl;
+
 import nl.knaw.dans.validatedansbag.core.rules.RuleSets;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReaderImpl;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;

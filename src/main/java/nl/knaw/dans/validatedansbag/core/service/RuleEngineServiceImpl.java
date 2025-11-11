@@ -16,13 +16,13 @@
 package nl.knaw.dans.validatedansbag.core.service;
 
 import lombok.extern.slf4j.Slf4j;
+import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngine;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineConfigurationException;
+import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
 import nl.knaw.dans.validatedansbag.api.ValidateOkRuleViolationsInnerDto;
 import nl.knaw.dans.validatedansbag.core.BagNotFoundException;
-import nl.knaw.dans.validatedansbag.core.engine.NumberedRule;
-import nl.knaw.dans.validatedansbag.core.engine.RuleEngine;
-import nl.knaw.dans.validatedansbag.core.engine.RuleEngineConfigurationException;
-import nl.knaw.dans.validatedansbag.core.engine.RuleValidationResult;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -53,7 +53,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
         }
 
-        return ruleEngine.validateRules(path, this.ruleSet);
+        return ruleEngine.validateBag(path, this.ruleSet);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
         }
 
-        var results = ruleEngine.validateRules(path, this.ruleSet);
+        var results = ruleEngine.validateBag(path, this.ruleSet);
         var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
 
         var result = new ValidateOkDto();
@@ -98,7 +98,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
 
     public void validateRuleConfiguration() {
         try {
-            this.ruleEngine.validateRuleConfiguration(this.ruleSet);
+            this.ruleEngine.validateRuleSet(this.ruleSet);
         }
         catch (RuleEngineConfigurationException e) {
             throw new RuntimeException("Rule configuration is not valid", e);

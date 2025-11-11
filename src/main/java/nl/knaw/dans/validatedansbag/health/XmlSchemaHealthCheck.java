@@ -31,7 +31,7 @@ public class XmlSchemaHealthCheck extends HealthCheck {
     @Override
     protected Result check() throws Exception {
         try {
-            log.trace("Loading schema's if necessary");
+            log.debug("Loading schema's if necessary");
             xmlSchemaValidator.loadSchemaInstances();
             return Result.healthy();
         }

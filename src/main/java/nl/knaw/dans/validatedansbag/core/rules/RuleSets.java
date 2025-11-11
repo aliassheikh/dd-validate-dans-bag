@@ -16,7 +16,7 @@
 package nl.knaw.dans.validatedansbag.core.rules;
 
 import lombok.AllArgsConstructor;
-import nl.knaw.dans.validatedansbag.core.engine.NumberedRule;
+import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
@@ -91,7 +91,7 @@ public class RuleSets {
             new NumberedRule("1.2.3(b)", new BagInfoIsVersionOfIsValidUrnUuid(bagItMetadataReader), List.of("1.2.3(a)")),
             new NumberedRule("1.2.4(a)", new BagInfoContainsAtMostOneOf("Has-Organizational-Identifier", bagItMetadataReader), List.of("1.2.1")),
             new NumberedRule("1.2.4(b)", new BagInfoContainsAtMostOneOf("Has-Organizational-Identifier-Version", bagItMetadataReader), List.of("1.2.4(a)")),
-            new NumberedRule("1.2.4(c)", new BagInfoOrganizationalIdentifierPrefixIsValid(bagItMetadataReader, organizationIdentifierPrefixValidator),List.of("1.2.4(a)")),
+            new NumberedRule("1.2.4(c)", new BagInfoOrganizationalIdentifierPrefixIsValid(bagItMetadataReader, organizationIdentifierPrefixValidator), List.of("1.2.4(a)")),
 
             // 1.3. Manifests
             new NumberedRule("1.3.1", new BagHasOtherManifestsThanOnlyMd5(bagItMetadataReader), List.of("1.1.1")),
@@ -121,8 +121,8 @@ public class RuleSets {
             new NumberedRule("3.1.7", new DatasetXmlArchisIdentifiersHaveAtMost10Characters(xmlReader), List.of("3.1.1")),
             new NumberedRule("3.1.8", new DatasetXmlAllUrlsAreValid(xmlReader), List.of("3.1.1")),
 
-            new NumberedRule("3.1.9", new DatasetXmlHasRightsHolderInElement(xmlReader),  List.of("3.1.1")),
-            new NumberedRule("3.1.10", new DatasetXmlDoesNotHaveRightHolderInAuthorRole(xmlReader),  List.of("3.1.1")),
+            new NumberedRule("3.1.9", new DatasetXmlHasRightsHolderInElement(xmlReader), List.of("3.1.1")),
+            new NumberedRule("3.1.10", new DatasetXmlDoesNotHaveRightHolderInAuthorRole(xmlReader), List.of("3.1.1")),
             new NumberedRule("3.1.11", new DatasetXmlExactlyOneOfValueUriAndValueCode(xmlReader), List.of("3.1.1")),
             new NumberedRule("3.1.12 (a)", new DatasetXmlValueUrisAreValid(xmlReader, schemeUriToValidTermUris), List.of("3.1.1")),
             new NumberedRule("3.1.12 (b)", new DatasetXmlValueCodesAreValid(xmlReader, schemeUriToValidCodes), List.of("3.1.1")),
@@ -139,13 +139,13 @@ public class RuleSets {
 
     private List<NumberedRule> getDataStationOnlyRules() {
         return List.of(
-            new NumberedRule("4.1(a)", new BagInfoIsVersionOfPointsToExistingDatasetInDataverse(dataverseService, bagItMetadataReader),  List.of("1.2.3(a)")),
+            new NumberedRule("4.1(a)", new BagInfoIsVersionOfPointsToExistingDatasetInDataverse(dataverseService, bagItMetadataReader), List.of("1.2.3(a)")),
             new NumberedRule("4.1(b)", new BagInfoOrganizationalIdentifierExistsInDataset(dataverseService, bagItMetadataReader), List.of("1.2.3(a)", "1.2.4(a)")),
-            new NumberedRule("4.2", new DatasetXmlLicenseAllowedByDatastation(xmlReader, licenseValidator),  List.of("3.1.2")),
-            new NumberedRule("4.3", new DatasetXmlEmbargoPeriodWithinLimits(dataverseService, xmlReader),  List.of("3.1.1")),
+            new NumberedRule("4.2", new DatasetXmlLicenseAllowedByDatastation(xmlReader, licenseValidator), List.of("3.1.2")),
+            new NumberedRule("4.3", new DatasetXmlEmbargoPeriodWithinLimits(dataverseService, xmlReader), List.of("3.1.1")),
             new NumberedRule("4.4", new BagDirDoesNotContain(payloadPath, new String[] {
                 "original-metadata.zip"
-            }, fileService),  List.of("1.1.1"))
+            }, fileService), List.of("1.1.1"))
         );
     }
 

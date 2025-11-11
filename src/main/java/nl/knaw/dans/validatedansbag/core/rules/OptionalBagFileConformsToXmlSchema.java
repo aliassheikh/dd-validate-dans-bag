@@ -16,7 +16,7 @@
 package nl.knaw.dans.validatedansbag.core.rules;
 
 import lombok.extern.slf4j.Slf4j;
-import nl.knaw.dans.validatedansbag.core.engine.RuleResult;
+import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
 import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidator;
@@ -39,7 +39,8 @@ public class OptionalBagFileConformsToXmlSchema extends BagFileConformsToXmlSche
         if (fileService.exists(fileName)) {
             log.debug("Validating {} against schema {}", fileName, schema);
             return super.validate(path);
-        } else {
+        }
+        else {
             return RuleResult.skipDependencies();
         }
     }

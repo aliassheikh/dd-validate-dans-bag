@@ -15,7 +15,7 @@
  */
 package nl.knaw.dans.validatedansbag.core.rules;
 
-import nl.knaw.dans.validatedansbag.core.engine.RuleEngineImpl;
+import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
@@ -71,7 +71,7 @@ public class RuleSetsTest {
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
                 bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
             VAULT_CATALOG_CLIENT, Map.of(), Map.of());
-        new RuleEngineImpl().validateRuleConfiguration(ruleSets.getDataStationSet());
+        new RuleEngineImpl().validateRuleSet(ruleSets.getDataStationSet());
         assertTrue(true); // if we get here, the rule set is consistent
     }
 
@@ -81,7 +81,7 @@ public class RuleSetsTest {
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
                 bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
             VAULT_CATALOG_CLIENT, Map.of(), Map.of());
-        new RuleEngineImpl().validateRuleConfiguration(ruleSets.getVaasSet());
+        new RuleEngineImpl().validateRuleSet(ruleSets.getVaasSet());
         assertTrue(true); // if we get here, the rule set is consistent
     }
 

@@ -93,9 +93,9 @@ public class XmlSchemaValidatorImpl implements XmlSchemaValidator {
     @Override
     public void loadSchemaInstances() {
         for (var filename : filenameToSchemaLocation.keySet()) {
-            log.trace("Start loading of schema instance for {}", filename);
+            log.debug("Start loading of schema instance for {}", filename);
             if (filenameToSchemaInstance.get(filename) != null) {
-                log.trace("Schema instance {} already loaded, skipping", filename);
+                log.debug("Schema instance {} already loaded, skipping", filename);
                 continue;
             }
 
