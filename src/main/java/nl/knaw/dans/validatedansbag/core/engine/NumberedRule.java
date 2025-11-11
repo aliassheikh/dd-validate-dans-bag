@@ -23,29 +23,15 @@ public class NumberedRule {
     private final String number;
     private final BagValidatorRule rule;
     private final List<String> dependencies;
-    private final DepositType depositType;
 
-    public NumberedRule(String number, BagValidatorRule rule, DepositType depositType, List<String> dependencies) {
+    public NumberedRule(String number, BagValidatorRule rule, List<String> dependencies) {
         this.number = number;
         this.rule = rule;
-        this.depositType = depositType;
         this.dependencies = dependencies;
     }
 
     public NumberedRule(String number, BagValidatorRule rule) {
-        this(number, rule, null, null);
-    }
-
-    public NumberedRule(String number, BagValidatorRule rule, List<String> dependencies) {
-        this(number, rule, null, dependencies);
-    }
-
-    public NumberedRule(String number, BagValidatorRule rule, DepositType depositType) {
-        this(number, rule, depositType, null);
-    }
-
-    public DepositType getDepositType() {
-        return depositType;
+        this(number, rule, null);
     }
 
     public String getNumber() {
@@ -63,11 +49,10 @@ public class NumberedRule {
     @Override
     public String toString() {
         return "NumberedRule{" +
-                "number='" + number + '\'' +
-                ", rule=" + rule +
-                ", dependencies=" + dependencies +
-                ", depositType=" + depositType +
-                '}';
+            "number='" + number + '\'' +
+            ", rule=" + rule +
+            ", dependencies=" + dependencies +
+            '}';
     }
 
 }

@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -199,18 +198,14 @@ public class RuleEngineImpl implements RuleEngine {
     private List<String> getUnresolvedDependencies(NumberedRule[] rules) {
         var unresolved = new ArrayList<String>();
 
-        for (var depositType : List.of(DepositType.DEPOSIT, DepositType.MIGRATION)) {
-            var typedRules = filterRulesOnDepositType(rules, depositType);
+        var keys = Arrays.stream(rules)
+            .map(NumberedRule::getNumber)
+            .collect(Collectors.toSet());
 
-            var keys = typedRules.stream()
-                .map(NumberedRule::getNumber)
-                .collect(Collectors.toSet());
-
-            // this does not check for circular dependencies or self-references
-            for (var rule : typedRules) {
-                if (rule.getDependencies() != null && !keys.containsAll(rule.getDependencies())) {
-                    unresolved.add(rule.getNumber());
-                }
+        // this does not check for circular dependencies or self-references
+        for (var rule : rules) {
+            if (rule.getDependencies() != null && !keys.containsAll(rule.getDependencies())) {
+                unresolved.add(rule.getNumber());
             }
         }
 
@@ -220,7 +215,7 @@ public class RuleEngineImpl implements RuleEngine {
     // find any rule that has a number that is present multiple times in the list
     private List<String> getDuplicateRules(NumberedRule[] rules) {
         var duplicates = new ArrayList<String>();
-        var seen = new HashMap<String, DepositType>();
+        var seen = new ArrayList<String>();
 
         for (var rule : rules) {
             var number = rule.getNumber();
@@ -228,36 +223,13 @@ public class RuleEngineImpl implements RuleEngine {
             // it is considered a duplicate if
             // - one of the 2 (or both) rules have type ALL (indicated by a null value)
             // - both have the same type
-            if (seen.containsKey(number)) {
-                var s = seen.get(number);
-
-                if (s == null || rule.getDepositType() == null) {
-                    duplicates.add(number);
-                }
-
-                else if (s.equals(rule.getDepositType())) {
-                    duplicates.add(number);
-                }
+            if (seen.contains(number)) {
+                 duplicates.add(number);
             }
 
-            seen.put(number, rule.getDepositType());
+            seen.add(number);
         }
 
         return duplicates;
-    }
-
-    private boolean shouldBeIgnoredBecauseOfDepositType(NumberedRule rule, DepositType depositType) {
-        if (rule.getDepositType() == null) {
-            return false;
-        }
-
-        return !depositType.equals(rule.getDepositType());
-    }
-
-
-    List<NumberedRule> filterRulesOnDepositType(NumberedRule[] rules, DepositType depositType) {
-        return Arrays.stream(rules)
-            .filter(rule -> !shouldBeIgnoredBecauseOfDepositType(rule, depositType))
-            .collect(Collectors.toList());
     }
 }

@@ -16,7 +16,6 @@
 package nl.knaw.dans.validatedansbag.resources;
 
 import lombok.AllArgsConstructor;
-import nl.knaw.dans.validatedansbag.core.engine.DepositType;
 import nl.knaw.dans.validatedansbag.core.service.FileService;
 import nl.knaw.dans.validatedansbag.core.service.RuleEngineService;
 

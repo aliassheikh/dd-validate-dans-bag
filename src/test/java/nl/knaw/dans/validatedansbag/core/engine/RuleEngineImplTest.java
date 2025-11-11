@@ -78,8 +78,8 @@ class RuleEngineImplTest {
         Mockito.when(fakeRule.validate(Mockito.any())).thenReturn(result);
         var rules = new NumberedRule[] {
             new NumberedRule("1.1", fakeRule),
-            new NumberedRule("1.2", fakeRule, DepositType.DEPOSIT),
-            new NumberedRule("1.2", fakeRule, DepositType.DEPOSIT),
+            new NumberedRule("1.2", fakeRule),
+            new NumberedRule("1.2", fakeRule),
             new NumberedRule("1.3", fakeRule, List.of("1.2")),
             new NumberedRule("1.4", fakeRule),
         };
@@ -112,29 +112,6 @@ class RuleEngineImplTest {
     }
 
     @Test
-    void validateRuleConfiguration_should_throw_when_dependency_is_unsatisfied_for_both_depositTypes() throws Exception {
-        var fakeRule = Mockito.mock(BagValidatorRule.class);
-        var result = new RuleResult(RuleResult.Status.SUCCESS, List.of());
-        Mockito.when(fakeRule.validate(Mockito.any())).thenReturn(result);
-
-        // This will fail because 1.3 depends on 1.2, but 1.2 is of type DEPOSIT
-        // while 1.3 is applicable to both deposit types.
-        // If the deposit were of type MIGRATION, this would create unresolved dependencies
-        var rules = new NumberedRule[] {
-            new NumberedRule("1.1", fakeRule),
-            new NumberedRule("1.2", fakeRule, DepositType.DEPOSIT),
-            new NumberedRule("1.3", fakeRule, List.of("1.2")),
-            new NumberedRule("1.4", fakeRule),
-        };
-
-        var engine = new RuleEngineImpl();
-
-        assertThrows(RuleEngineConfigurationException.class,
-            () -> engine.validateRuleConfiguration(rules));
-
-    }
-
-    @Test
     void validateRuleConfiguration_should_throw_when_rules_are_duplicated() throws Exception {
         var fakeRule = Mockito.mock(BagValidatorRule.class);
         var result = new RuleResult(RuleResult.Status.SUCCESS, List.of());
@@ -146,7 +123,7 @@ class RuleEngineImplTest {
         var rules = new NumberedRule[] {
             new NumberedRule("1.1", fakeRule),
             new NumberedRule("1.2", fakeRule),
-            new NumberedRule("1.2", fakeRule, DepositType.MIGRATION),
+            new NumberedRule("1.2", fakeRule),
             new NumberedRule("1.3", fakeRule, List.of("1.2")),
             new NumberedRule("1.4", fakeRule),
         };
@@ -154,52 +131,6 @@ class RuleEngineImplTest {
         var engine = new RuleEngineImpl();
 
         assertThrows(RuleEngineConfigurationException.class,
-            () -> engine.validateRuleConfiguration(rules));
-
-    }
-
-    @Test
-    void validateRuleConfiguration_should_not_throw_when_duplicate_rules_have_different_types() throws Exception {
-        var fakeRule = Mockito.mock(BagValidatorRule.class);
-        var result = new RuleResult(RuleResult.Status.SUCCESS, List.of());
-        Mockito.when(fakeRule.validate(Mockito.any())).thenReturn(result);
-
-        // Will not throw because 1.3 is declared with explicit types which do not overlap
-        var rules = new NumberedRule[] {
-            new NumberedRule("1.1", fakeRule),
-            new NumberedRule("1.2", fakeRule),
-            new NumberedRule("1.3", fakeRule, DepositType.DEPOSIT, List.of("1.2")),
-            new NumberedRule("1.3", fakeRule, DepositType.MIGRATION, List.of("1.2")),
-            new NumberedRule("1.4", fakeRule),
-        };
-
-        var engine = new RuleEngineImpl();
-
-        assertDoesNotThrow(
-            () -> engine.validateRuleConfiguration(rules));
-
-    }
-
-    @Test
-    void validateRuleConfiguration_should_not_throw_with_multiple_duplicate_rules() throws Exception {
-        var fakeRule = Mockito.mock(BagValidatorRule.class);
-        var result = new RuleResult(RuleResult.Status.SUCCESS, List.of());
-        Mockito.when(fakeRule.validate(Mockito.any())).thenReturn(result);
-
-        // This emulates a chain of dependencies with explicit DepositType's, which is valid
-        var rules = new NumberedRule[] {
-            new NumberedRule("1.1", fakeRule),
-            new NumberedRule("1.2", fakeRule),
-            new NumberedRule("1.3", fakeRule, DepositType.DEPOSIT, List.of("1.2")),
-            new NumberedRule("1.3", fakeRule, DepositType.MIGRATION, List.of("1.2")),
-            new NumberedRule("1.4", fakeRule),
-            new NumberedRule("1.6", fakeRule, DepositType.DEPOSIT, List.of("1.3")),
-            new NumberedRule("1.6", fakeRule, DepositType.MIGRATION, List.of("1.3")),
-        };
-
-        var engine = new RuleEngineImpl();
-
-        assertDoesNotThrow(
             () -> engine.validateRuleConfiguration(rules));
 
     }
@@ -218,7 +149,7 @@ class RuleEngineImplTest {
         var rules = new NumberedRule[] {
             new NumberedRule("1.1", fakeRule),
             new NumberedRule("1.2", fakeRule),
-            new NumberedRule("1.3", fakeErrorRule, DepositType.DEPOSIT, List.of("1.2")),
+            new NumberedRule("1.3", fakeErrorRule, List.of("1.2")),
         };
 
         var engine = new RuleEngineImpl();
