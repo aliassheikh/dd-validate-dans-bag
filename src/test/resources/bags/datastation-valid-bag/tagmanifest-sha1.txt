@@ -3,3 +3,4 @@ e2924b081506bac23f5fffe650ad1848a1c8ac1d  bagit.txt
 0e24fb6120bbc3a18e29db5501286d698f1ee14a  manifest-sha1.txt
 f1a31d62e5f45b4569f7c4bab828e4cb4c2788a9  original-filepaths.txt
 410552d46fdb94b1e9d1be5169e57501bd77bf1c  metadata/files.xml
+f8f939dc03e94fdf6c29b74fb71630921e7ffd8c  metadata/dataset.xml

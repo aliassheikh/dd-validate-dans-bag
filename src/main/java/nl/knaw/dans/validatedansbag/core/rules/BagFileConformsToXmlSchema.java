@@ -44,13 +44,13 @@ public class BagFileConformsToXmlSchema implements BagValidatorRule {
             log.debug("Validating {} against schema {}", fileName, schema);
             var errors = validateXmlFile(fileName, schema);
 
-            if (errors.size() > 0) {
+            if (!errors.isEmpty()) {
                 var msg = String.format("%s does not conform to %s: \n%s",
                         file, schema, String.join("\n", errors));
 
                 return RuleResult.error(msg);
             }
-        } catch (SAXParseException e) {
+        } catch (SAXException e) {
             return RuleResult.error(e.getMessage(), e);
         }
 
