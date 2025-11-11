@@ -46,19 +46,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
     }
 
     @Override
-    public List<RuleValidationResult> validateBag(Path path, DepositType depositType) throws Exception {
-        log.info("Validating bag on path '{}', deposit type is {}", path, depositType);
-
-        if (!fileService.isReadable(path)) {
-            log.warn("Path {} could not not be found or is not readable", path);
-            throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
-        }
-
-        return ruleEngine.validateRules(path, this.ruleSet, depositType);
-    }
-
-    @Override
-    public ValidateOkDto validateBag(Path path, DepositType depositType, String bagLocation) throws Exception {
+    public List<RuleValidationResult> validateBag(Path path) throws Exception {
         log.info("Validating bag on path '{}'", path);
 
         if (!fileService.isReadable(path)) {
@@ -66,7 +54,19 @@ public class RuleEngineServiceImpl implements RuleEngineService {
             throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
         }
 
-        var results = ruleEngine.validateRules(path, this.ruleSet, depositType);
+        return ruleEngine.validateRules(path, this.ruleSet);
+    }
+
+    @Override
+    public ValidateOkDto validateBag(Path path, String bagLocation) throws Exception {
+        log.info("Validating bag on path '{}'", path);
+
+        if (!fileService.isReadable(path)) {
+            log.warn("Path {} could not not be found or is not readable", path);
+            throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
+        }
+
+        var results = ruleEngine.validateRules(path, this.ruleSet);
         var isValid = results.stream().noneMatch(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE));
 
         var result = new ValidateOkDto();
@@ -74,7 +74,7 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         result.setIsCompliant(isValid);
         result.setName(path.getFileName().toString());
         result.setProfileVersion("1.2.0");
-        result.setInformationPackageType(toInfoPackageType(depositType));
+        result.setInformationPackageType(ValidateOkDto.InformationPackageTypeEnum.DEPOSIT);
         result.setRuleViolations(results.stream()
             .filter(r -> r.getStatus().equals(RuleValidationResult.RuleValidationResultStatus.FAILURE))
             .map(rule -> {
@@ -95,13 +95,6 @@ public class RuleEngineServiceImpl implements RuleEngineService {
         log.debug("Validation result: {}", result);
 
         return result;
-    }
-
-    private ValidateOkDto.InformationPackageTypeEnum toInfoPackageType(DepositType value) {
-        if (DepositType.MIGRATION.equals(value)) {
-            return ValidateOkDto.InformationPackageTypeEnum.MIGRATION;
-        }
-        return ValidateOkDto.InformationPackageTypeEnum.DEPOSIT;
     }
 
     public void validateRuleConfiguration() {

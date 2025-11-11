@@ -155,7 +155,7 @@ class ValidateLocalDirApiResourceIntegrationTest {
     }
 
     @Test
-    void validateFormData_should_return_500_when_xml_errors_occur() throws Exception {
+    void validateFormData_should_return_200_but_not_compliant_when_xml_errors_occur() throws Exception {
         var filename = baseTestFolder + "/bags/valid-bag";
 
         var data = new ValidateCommandDto();
@@ -170,7 +170,9 @@ class ValidateLocalDirApiResourceIntegrationTest {
             .request()
             .post(Entity.entity(data, MediaType.APPLICATION_JSON_TYPE), Response.class)) {
 
-            assertEquals(500, response.getStatus());
+            assertEquals(200, response.getStatus());
+            var entity = response.readEntity(ValidateOkDto.class);
+            assertFalse(entity.getIsCompliant());
         }
     }
 
@@ -180,7 +182,6 @@ class ValidateLocalDirApiResourceIntegrationTest {
 
         var data = new ValidateCommandDto();
         data.setBagLocation(filename);
-        data.setPackageType(ValidateCommandDto.PackageTypeEnum.MIGRATION);
 
         var searchResultsJson = """
             {
@@ -244,7 +245,6 @@ class ValidateLocalDirApiResourceIntegrationTest {
 
         assertTrue(response.getIsCompliant());
         assertEquals("1.2.0", response.getProfileVersion());
-        assertEquals(ValidateOkDto.InformationPackageTypeEnum.MIGRATION, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
         assertEquals(0, response.getRuleViolations().size());
     }
@@ -277,7 +277,6 @@ class ValidateLocalDirApiResourceIntegrationTest {
 
         assertFalse(response.getIsCompliant());
         assertEquals("1.2.0", response.getProfileVersion());
-        assertEquals(ValidateOkDto.InformationPackageTypeEnum.MIGRATION, response.getInformationPackageType());
         assertEquals(filename, response.getBagLocation());
     }
 

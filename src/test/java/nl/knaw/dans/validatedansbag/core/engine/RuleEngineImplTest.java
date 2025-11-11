@@ -42,7 +42,7 @@ class RuleEngineImplTest {
 
         var engine = new RuleEngineImpl();
         assertDoesNotThrow(() -> engine.validateRuleConfiguration(rules));
-        assertDoesNotThrow(() -> engine.validateRules(Path.of("somedir"), rules, DepositType.DEPOSIT));
+        assertDoesNotThrow(() -> engine.validateRules(Path.of("somedir"), rules));
 
         Mockito.verify(fakeRule, Mockito.times(4)).validate(Mockito.any());
     }
@@ -65,31 +65,10 @@ class RuleEngineImplTest {
 
         var engine = new RuleEngineImpl();
         assertDoesNotThrow(() -> engine.validateRuleConfiguration(rules));
-        assertDoesNotThrow(() -> engine.validateRules(Path.of("somedir"), rules, DepositType.DEPOSIT));
+        assertDoesNotThrow(() -> engine.validateRules(Path.of("somedir"), rules));
 
         Mockito.verify(fakeRule, Mockito.times(2)).validate(Mockito.any());
         Mockito.verify(fakeRuleSkipped).validate(Mockito.any());
-    }
-
-    @Test
-    void validateResult_should_skip_rule_with_different_deposit_type() throws Exception {
-        var fakeRule = Mockito.mock(BagValidatorRule.class);
-        var result = new RuleResult(RuleResult.Status.SUCCESS, List.of());
-        Mockito.when(fakeRule.validate(Mockito.any())).thenReturn(result);
-
-        var rules = new NumberedRule[] {
-            new NumberedRule("1.1", fakeRule),
-            new NumberedRule("1.2", fakeRule, DepositType.DEPOSIT),
-            new NumberedRule("1.2", fakeRule, DepositType.MIGRATION),
-            new NumberedRule("1.3", fakeRule, List.of("1.2")),
-            new NumberedRule("1.4", fakeRule),
-        };
-
-        var engine = new RuleEngineImpl();
-        assertDoesNotThrow(() -> engine.validateRuleConfiguration(rules));
-        assertDoesNotThrow(() -> engine.validateRules(Path.of("somedir"), rules, DepositType.DEPOSIT));
-
-        Mockito.verify(fakeRule, Mockito.times(4)).validate(Mockito.any());
     }
 
     @Test
@@ -240,11 +219,10 @@ class RuleEngineImplTest {
             new NumberedRule("1.1", fakeRule),
             new NumberedRule("1.2", fakeRule),
             new NumberedRule("1.3", fakeErrorRule, DepositType.DEPOSIT, List.of("1.2")),
-            new NumberedRule("1.3", fakeErrorRule, DepositType.MIGRATION, List.of("1.2")),
         };
 
         var engine = new RuleEngineImpl();
-        var result = engine.validateRules(Path.of("bagdir"), rules, DepositType.DEPOSIT);
+        var result = engine.validateRules(Path.of("bagdir"), rules);
 
         assertEquals(3, result.size());
     }

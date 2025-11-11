@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -53,9 +54,9 @@ public class RuleEngineImpl implements RuleEngine {
     }
 
     @Override
-    public List<RuleValidationResult> validateRules(Path bag, NumberedRule[] rules, DepositType depositType) throws Exception {
+    public List<RuleValidationResult> validateRules(Path bag, NumberedRule[] rules) throws Exception {
         final var ruleResults = new HashMap<String, RuleValidationResult>();
-        final var rulesToExecute = filterRulesOnDepositType(rules, depositType);
+        final var rulesToExecute = List.of(rules);
 
         // create a copy, because we will modify this list
         var remainingRules = new ArrayList<>(rulesToExecute);
@@ -69,11 +70,6 @@ public class RuleEngineImpl implements RuleEngine {
                 // will never be processed, so skip it and remove it from the remaining rules
                 if (shouldBeSkipped(rule, ruleResults)) {
                     log.trace("Skipping task {} because dependencies are not successful", rule.getNumber());
-                    ruleResults.put(number, new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SKIPPED));
-                    toRemove.add(rule);
-                }
-                else if (shouldBeIgnoredBecauseOfDepositType(rule, depositType)) {
-                    log.trace("Skipping task {} because it does not apply to this deposit (deposit type: {}, rule type: {})", rule.getNumber(), depositType, rule.getDepositType());
                     ruleResults.put(number, new RuleValidationResult(number, RuleValidationResult.RuleValidationResultStatus.SKIPPED));
                     toRemove.add(rule);
                 }
@@ -103,7 +99,7 @@ public class RuleEngineImpl implements RuleEngine {
 
             remainingRules.removeAll(toRemove);
 
-            if (toRemove.size() == 0) {
+            if (toRemove.isEmpty()) {
                 log.warn("No rules executed this round, but there are still rules to be checked; most likely a dependency configuration error!");
 
                 for (var rule : remainingRules) {
@@ -125,7 +121,7 @@ public class RuleEngineImpl implements RuleEngine {
 
     // returns true if all dependencies are marked as SUCCESS
     private boolean canBeExecuted(NumberedRule rule, Map<String, RuleValidationResult> results) {
-        if (rule.getDependencies() != null && rule.getDependencies().size() > 0) {
+        if (rule.getDependencies() != null && !rule.getDependencies().isEmpty()) {
             for (var dependency : rule.getDependencies()) {
                 var result = results.get(dependency);
 
@@ -142,7 +138,7 @@ public class RuleEngineImpl implements RuleEngine {
 
     // return true if one of its dependencies was skipped, or it has failed
     private boolean shouldBeSkipped(NumberedRule rule, Map<String, RuleValidationResult> results) {
-        if (rule.getDependencies() != null && rule.getDependencies().size() > 0) {
+        if (rule.getDependencies() != null && !rule.getDependencies().isEmpty()) {
             for (var dependency : rule.getDependencies()) {
                 var result = results.get(dependency);
 

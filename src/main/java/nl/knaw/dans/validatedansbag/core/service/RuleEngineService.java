@@ -24,7 +24,7 @@ import java.util.List;
 
 public interface RuleEngineService {
 
-    List<RuleValidationResult> validateBag(Path path, DepositType depositType) throws Exception;
+    List<RuleValidationResult> validateBag(Path path) throws Exception;
 
-    ValidateOkDto validateBag(Path path, DepositType depositType, String bagLocation) throws Exception;
+    ValidateOkDto validateBag(Path path, String bagLocation) throws Exception;
 }

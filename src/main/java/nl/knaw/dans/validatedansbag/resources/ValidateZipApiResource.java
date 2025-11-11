@@ -37,7 +37,7 @@ public class ValidateZipApiResource implements ValidateZipApi {
             if (bagDir.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST).entity("No bag directory found in zip file").build();
             }
-            var result = ruleEngineService.validateBag(bagDir.get(), DepositType.DEPOSIT, "ZIP");
+            var result = ruleEngineService.validateBag(bagDir.get(), "ZIP");
             return Response.ok(result).build();
         }
         catch (Exception e) {
