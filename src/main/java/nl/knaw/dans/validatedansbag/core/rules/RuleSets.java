@@ -69,12 +69,12 @@ public class RuleSets {
 
     private final Map<URI, Set<String>> schemeUriToValidCodes;
 
-    public NumberedRule[] getDataStationSet() {
-        return ListUtils.union(getCommonRules(), getDataStationOnlyRules()).toArray(new NumberedRule[0]);
+    public List<NumberedRule> getDataStationSet() {
+        return ListUtils.union(getCommonRules(), getDataStationOnlyRules());
     }
 
-    public NumberedRule[] getVaasSet() {
-        return ListUtils.union(getCommonRules(), getVaasOnlyRules()).toArray(new NumberedRule[0]);
+    public List<NumberedRule> getVaasSet() {
+        return ListUtils.union(getCommonRules(), getVaasOnlyRules());
     }
 
     private List<NumberedRule> getCommonRules() {

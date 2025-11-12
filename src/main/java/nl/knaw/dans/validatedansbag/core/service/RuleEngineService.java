@@ -23,8 +23,5 @@ import java.nio.file.Path;
 import java.util.List;
 
 public interface RuleEngineService {
-
-    List<RuleValidationResult> validateBag(Path path) throws Exception;
-
     ValidateOkDto validateBag(Path path, String bagLocation) throws Exception;
 }

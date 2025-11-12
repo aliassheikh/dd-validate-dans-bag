@@ -33,27 +33,15 @@ public class RuleEngineServiceImpl implements RuleEngineService {
 
     private final RuleEngine ruleEngine;
     private final FileService fileService;
-    private final NumberedRule[] ruleSet;
+    private final List<NumberedRule> ruleSet;
 
     public RuleEngineServiceImpl(RuleEngine ruleEngine,
         FileService fileService,
-        NumberedRule[] ruleSet) {
+        List<NumberedRule> ruleSet) {
         this.ruleEngine = ruleEngine;
         this.fileService = fileService;
         this.ruleSet = ruleSet;
         this.validateRuleConfiguration();
-    }
-
-    @Override
-    public List<RuleValidationResult> validateBag(Path path) throws Exception {
-        log.info("Validating bag on path '{}'", path);
-
-        if (!fileService.isReadable(path)) {
-            log.warn("Path {} could not not be found or is not readable", path);
-            throw new BagNotFoundException(String.format("Bag on path '%s' could not be found or read", path));
-        }
-
-        return ruleEngine.validateBag(path, this.ruleSet);
     }
 
     @Override
