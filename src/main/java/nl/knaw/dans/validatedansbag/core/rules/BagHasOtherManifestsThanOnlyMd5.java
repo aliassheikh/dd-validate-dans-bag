@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.BagNotFoundException;
-
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
 
 import java.nio.file.Path;

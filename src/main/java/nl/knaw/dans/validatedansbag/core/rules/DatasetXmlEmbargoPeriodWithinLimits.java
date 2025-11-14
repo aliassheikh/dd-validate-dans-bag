@@ -16,7 +16,6 @@
 package nl.knaw.dans.validatedansbag.core.rules;
 
 import lombok.extern.slf4j.Slf4j;
-
 import nl.knaw.dans.lib.util.ruleengine.BagValidatorRule;
 import nl.knaw.dans.lib.util.ruleengine.RuleResult;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
@@ -24,7 +23,6 @@ import nl.knaw.dans.validatedansbag.core.service.XmlReader;
 import org.joda.time.DateTime;
 
 import java.nio.file.Path;
-import java.util.stream.Collectors;
 
 @Slf4j
 public class DatasetXmlEmbargoPeriodWithinLimits extends DataverseRuleBase implements BagValidatorRule {

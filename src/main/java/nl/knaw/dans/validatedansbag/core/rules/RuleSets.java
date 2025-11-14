@@ -16,6 +16,7 @@
 package nl.knaw.dans.validatedansbag.core.rules;
 
 import lombok.AllArgsConstructor;
+import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.NumberedRule;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
@@ -24,7 +25,6 @@ import nl.knaw.dans.validatedansbag.core.service.FilesXmlService;
 import nl.knaw.dans.validatedansbag.core.service.OriginalFilepathsService;
 import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
-import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidator;
 import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidator;
 import nl.knaw.dans.validatedansbag.core.validator.LicenseValidator;
 import nl.knaw.dans.validatedansbag.core.validator.OrganizationIdentifierPrefixValidator;
@@ -109,7 +109,7 @@ public class RuleSets {
             // 3 Metadata requirements¶
 
             // 3.1 metadata/dataset.xml¶
-            new NumberedRule("3.1.1", new BagFileConformsToXmlSchema(datasetPath, xmlReader, "dataset.xml", xmlSchemaValidator), List.of("1.1.1", "2.2(a)")),
+            new NumberedRule("3.1.1", new BagFileConformsToXmlSchema(datasetPath, fileService,"dataset.xml", xmlSchemaValidator), List.of("1.1.1", "2.2(a)")),
             new NumberedRule("3.1.2", new DatasetXmlContainsExactlyOneDctermsLicenseWithXsiTypeUri(xmlReader, licenseValidator), List.of("3.1.1")),
 
             new NumberedRule("3.1.3(a)", new DatasetXmlDaisAreValid(xmlReader, identifierValidator), List.of("3.1.1")),
@@ -128,7 +128,7 @@ public class RuleSets {
             new NumberedRule("3.1.12(b)", new DatasetXmlValueCodesAreValid(xmlReader, schemeUriToValidCodes), List.of("3.1.1")),
 
             // 3.2 metadata/files.xml
-            new NumberedRule("3.2.1", new BagFileConformsToXmlSchema(metadataFilesPath, xmlReader, "files.xml", xmlSchemaValidator), List.of("1.1.1", "2.2(b)")),
+            new NumberedRule("3.2.1", new BagFileConformsToXmlSchema(metadataFilesPath, fileService,"files.xml", xmlSchemaValidator), List.of("1.1.1", "2.2(b)")),
             new NumberedRule("3.2.2", new FilesXmlFilePathAttributesContainLocalBagPathAndNonPayloadFilesAreNotDescribed(fileService, filesXmlService, originalFilepathService), List.of("3.2.1")),
             new NumberedRule("3.2.3", new FilesXmlNoDuplicateFilesAndEveryPayloadFileIsDescribed(filesXmlService, fileService, originalFilepathService), List.of("3.2.1")),
 

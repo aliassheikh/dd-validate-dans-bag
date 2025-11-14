@@ -23,12 +23,12 @@ import io.dropwizard.forms.MultiPartBundle;
 import lombok.extern.slf4j.Slf4j;
 import nl.knaw.dans.lib.util.ClientProxyBuilder;
 import nl.knaw.dans.lib.util.DataverseHealthCheck;
+import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.client.VaultCatalogClientImpl;
 import nl.knaw.dans.validatedansbag.config.DdValidateDansBagConfiguration;
 import nl.knaw.dans.validatedansbag.config.ValidTermsConfig;
 import nl.knaw.dans.validatedansbag.config.ValidTermsFileConfig;
-
 import nl.knaw.dans.validatedansbag.core.rules.RuleSets;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReaderImpl;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
@@ -39,12 +39,10 @@ import nl.knaw.dans.validatedansbag.core.service.OriginalFilepathsServiceImpl;
 import nl.knaw.dans.validatedansbag.core.service.RuleEngineServiceImpl;
 import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 import nl.knaw.dans.validatedansbag.core.service.XmlReaderImpl;
-import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.LicenseValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.OrganizationIdentifierPrefixValidatorImpl;
 import nl.knaw.dans.validatedansbag.core.validator.PolygonListValidatorImpl;
-import nl.knaw.dans.validatedansbag.health.XmlSchemaHealthCheck;
 import nl.knaw.dans.validatedansbag.resources.IllegalArgumentExceptionMapper;
 import nl.knaw.dans.validatedansbag.resources.ValidateLocalDirApiResource;
 import nl.knaw.dans.validatedansbag.resources.ValidateZipApiResource;
@@ -95,7 +93,7 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         var polygonListValidator = new PolygonListValidatorImpl();
         var originalFilepathsService = new OriginalFilepathsServiceImpl(fileService);
         var filesXmlService = new FilesXmlServiceImpl(xmlReader);
-        var xmlSchemaValidator = new XmlSchemaValidatorImpl(configuration.getValidation().getXmlSchemas().buildMap());
+        var xmlSchemaValidator = new XmlSchemaValidator(configuration.getValidation().getXmlSchemas().buildMap());
 
         var licenseValidator = new LicenseValidatorImpl(dataverseService);
         var identifierValidator = new IdentifierValidatorImpl();
@@ -128,8 +126,6 @@ public class DdValidateDansBagApplication extends Application<DdValidateDansBagC
         environment.jersey().register(new IllegalArgumentExceptionMapper());
         environment.jersey().register(new ValidateZipApiResource(ruleEngineService, fileService));
         environment.jersey().register(new ValidateLocalDirApiResource(ruleEngineService));
-
-        environment.healthChecks().register("xml-schemas", new XmlSchemaHealthCheck(xmlSchemaValidator));
     }
 
     private VaultCatalogClient getVaultCatalogClient(DdValidateDansBagConfiguration configuration) {

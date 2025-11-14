@@ -15,6 +15,7 @@
  */
 package nl.knaw.dans.validatedansbag.core.rules;
 
+import nl.knaw.dans.lib.util.XmlSchemaValidator;
 import nl.knaw.dans.lib.util.ruleengine.RuleEngineImpl;
 import nl.knaw.dans.validatedansbag.core.service.BagItMetadataReader;
 import nl.knaw.dans.validatedansbag.core.service.DataverseService;
@@ -23,7 +24,6 @@ import nl.knaw.dans.validatedansbag.core.service.FilesXmlService;
 import nl.knaw.dans.validatedansbag.core.service.OriginalFilepathsService;
 import nl.knaw.dans.validatedansbag.core.service.VaultCatalogClient;
 import nl.knaw.dans.validatedansbag.core.service.XmlReader;
-import nl.knaw.dans.validatedansbag.core.service.XmlSchemaValidator;
 import nl.knaw.dans.validatedansbag.core.validator.IdentifierValidator;
 import nl.knaw.dans.validatedansbag.core.validator.LicenseValidator;
 import nl.knaw.dans.validatedansbag.core.validator.OrganizationIdentifierPrefixValidator;
@@ -69,7 +69,7 @@ public class RuleSetsTest {
     public void dataStationsRuleSet_should_be_consistent() throws Exception {
         var ruleSets = new RuleSets(
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
-                bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
+                bagItMetadataReader,  xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
             VAULT_CATALOG_CLIENT, Map.of(), Map.of());
         new RuleEngineImpl().validateRuleSet(ruleSets.getDataStationSet());
         assertTrue(true); // if we get here, the rule set is consistent
@@ -79,7 +79,7 @@ public class RuleSetsTest {
     public void vaasRuleSet_should_be_consistent() throws Exception {
         var ruleSets = new RuleSets(
                 dataverseService, fileService, filesXmlService, originalFilepathsService, xmlReader,
-                bagItMetadataReader, xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
+                bagItMetadataReader,  xmlSchemaValidator, licenseValidator, identifierValidator, polygonListValidator, organizationIdentifierPrefixValidator,
             VAULT_CATALOG_CLIENT, Map.of(), Map.of());
         new RuleEngineImpl().validateRuleSet(ruleSets.getVaasSet());
         assertTrue(true); // if we get here, the rule set is consistent

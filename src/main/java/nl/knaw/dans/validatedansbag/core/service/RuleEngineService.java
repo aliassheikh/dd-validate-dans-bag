@@ -15,12 +15,9 @@
  */
 package nl.knaw.dans.validatedansbag.core.service;
 
-import nl.knaw.dans.lib.util.ruleengine.RuleValidationResult;
 import nl.knaw.dans.validatedansbag.api.ValidateOkDto;
 
-
 import java.nio.file.Path;
-import java.util.List;
 
 public interface RuleEngineService {
     ValidateOkDto validateBag(Path path, String bagLocation) throws Exception;
