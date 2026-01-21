@@ -36,6 +36,7 @@
 
     <properties>
         <main-class>nl.knaw.dans.validatedansbag.DdValidateDansBagApplication</main-class>
+        <dd-vault-catalog-api.version>0.11.0-SNAPSHOT</dd-vault-catalog-api.version>
     </properties>
 
     <scm>
